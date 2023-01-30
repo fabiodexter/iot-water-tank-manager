@@ -36,33 +36,39 @@ boolean restart = false;
 bool initWiFi(String ssid, String gateway,String pass, String newHostname)
 {
 
-
+    parent__->getLedMonitor().led1("OFF");   
     if (ssid == "")
     {
+        parent__->getLedMonitor().led1("ERROR");   
         Serial.println("Undefined SSID or IP address.");
         return false;
     }
 
     localGateway.fromString(gateway.c_str());
-    WiFi.disconnect(true);
-    WiFi.begin(ssid.c_str(), pass.c_str());
-    WiFi.setHostname(newHostname.c_str());
-    Serial.println("> hostname: " + WiFi.hostname());
-    Serial.println("> WiFi Status:");
-    Serial.println(WiFi.status());
 
     Serial.println("Connecting to WiFi...");
-    delay(10000);
-    if (WiFi.status() != WL_CONNECTED)
+
+    WiFi.disconnect(true);
+    WiFi.begin(ssid.c_str(), pass.c_str());
+
+    int tries = 0;
+    int maxtries = 10;
+    while (WiFi.status() != WL_CONNECTED)
     {
-        Serial.println("Failed to connect.");
-        Serial.println("WiFi Status:");
-        Serial.println(WiFi.status());
+        parent__->getLedMonitor().led1("CONNECTING");
+        delay(1000);
+        Serial.println("connecting...");
+        tries ++;
+        if(tries>maxtries){
+          Serial.println("Failed to connect.");
+          parent__->getLedMonitor().led1("ERROR");          
+          return false;
+        }
 
-        return false;
     }
-
-    Serial.println(WiFi.localIP());
+    WiFi.setHostname(newHostname.c_str());
+    Serial.println("> hostname: " + WiFi.hostname());
+    parent__->getLedMonitor().led1("CONNECTED");    
     return true;
 }
 
@@ -104,9 +110,8 @@ void WifiManager::setParent(App *_parent)
     parent__ = _parent;
 }
 
-void WifiManager::init(String ssid,String gateway,String pass, String newHostname)
+bool WifiManager::init(String ssid,String gateway,String pass, String newHostname)
 {
-
     if (initWiFi(ssid,gateway,pass,newHostname))
     {
         Serial.println("connected to wifi router");
@@ -128,16 +133,19 @@ void WifiManager::init(String ssid,String gateway,String pass, String newHostnam
         server.serveStatic("/", LittleFS, "/");
         server.begin();
         Serial.println("webserver running");
+        return true;
     }
     else
     {
+
+        //parent__->getLedMonitor().led1("ERROR");
         Serial.println("## ssid:" + ssid);
         Serial.println("## gateway:" + gateway);
         Serial.println("## pass:" + pass);
         // Connect to Wi-Fi network with SSID and password
         Serial.println("Setting AP (Access Point)");
         // NULL sets an open Access Point
-        WiFi.softAP("ESP-WIFI-MANAGER", NULL);
+        WiFi.softAP(newHostname.c_str(), NULL);
 
         IPAddress IP = WiFi.softAPIP();
         Serial.print("AP IP address: ");
@@ -151,7 +159,6 @@ void WifiManager::init(String ssid,String gateway,String pass, String newHostnam
         server.serveStatic("/", LittleFS, "/");
 
         server.on("/", HTTP_POST, [ssid,gateway,pass](AsyncWebServerRequest *request){
-
 
 
       int params = request->params();
@@ -208,15 +215,17 @@ void WifiManager::init(String ssid,String gateway,String pass, String newHostnam
       });
       server.begin();
       Serial.println("## (ap mode) SERVER BEGIN");
+      return false;
     }
 }
 
 void WifiManager::loop()
 {
+  //Serial.println("## WiFi Manager loop");
     if (restart)
     {
+       Serial.println("## WiFi Manager restarting");
         delay(5000);
         ESP.restart();
     }
-    //mqtt_manager.loop_mqtt();
 }

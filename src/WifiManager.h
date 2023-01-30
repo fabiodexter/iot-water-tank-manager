@@ -10,6 +10,6 @@ public:
     WifiManager();
     void setParent(App *_parent);
     //void init();
-    void init(String ssid,String gateway,String pass, String newHostname);
+    bool init(String ssid,String gateway,String pass, String newHostname);
     void loop();
 };

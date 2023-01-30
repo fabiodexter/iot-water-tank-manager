@@ -1,26 +1,22 @@
 #include <Arduino.h>
 #include <App.h>
-#include <RelayController.h>
-#include <sensor_soil.h>
 #include <SensorWaterflow.h>
 #include <WifiManager.h>
 #include <mqtt.h>
 #include <EnvVars.h>
 
-//RelayController pumpRelay(14);
+
+
 SensorWaterflow sensorWaterflow(13);
 WifiManager wifiManager;
 MQTTManager mqtt_manager;
 EnvVars vars;
+LedMonitor ledMonitor(1);
+
 const char *device_id = "iot-water-tank-manager";
 const int tank_limit_pin = 15;
-/*
-const int led_red_pin = 12;
-const int led_green_pin = 13;
-const int led_blue_pin = 15;
-*/
 int tank_limit = 0;
-
+bool connected = false;
 
 
 //===================== Ultrasonic distance sensor HR-SR04 =====================================
@@ -30,19 +26,24 @@ Ultrasonic ultrasonic(14, 12);
 
 void App::setup()
 {
+    
     Serial.begin(115200);
     Serial.println("");
     Serial.println(">>> starting app");
-    vars.initFS();
-    wifiManager.init(vars.ssid,vars.gateway,vars.pass,device_id);
-    wifiManager.setParent(this);
-    mqtt_manager.setParent(this);
+    this->ledMonitor = ledMonitor;
     pinMode(tank_limit_pin, INPUT);
-    /*
-    pinMode(led_red_pin, OUTPUT);
-    pinMode(led_green_pin, OUTPUT);
-    pinMode(led_blue_pin, OUTPUT);
-    */
+
+    vars.initFS();
+    wifiManager.setParent(this);
+    if(wifiManager.init(vars.ssid,vars.gateway,vars.pass,device_id)){
+        mqtt_manager.setParent(this);
+        mqtt_manager.reconnect();
+        Serial.println(">>> Wifi connected !");
+        connected = true;
+    }else{
+        Serial.println(">>> No Wifi, starting AP Mode");
+        connected = false;
+    }
 }
 
 
@@ -50,9 +51,14 @@ void App::setup()
 void App::loop()
 {
     curMillis = millis();
+    ledMonitor.loop();
+
+    if(!connected) return;
+
     sensorWaterflow.loop();
     wifiManager.loop();
     mqtt_manager.loop_mqtt();
+
 
     // json output =========================================================================
     if (curMillis - prevMillis > pubInterval)
@@ -64,11 +70,7 @@ void App::loop()
             tank_limit = 1;
         else
             tank_limit = 0;
-        /*
-        digitalWrite(12, HIGH);
-        digitalWrite(13, HIGH);
-        digitalWrite(15, LOW);    
-*/
+
         //===================== Ultrasonic distance sensor HR-SR04 =====================================
         int distance_surface = ultrasonic.read(CM);          
         String json = String("{") + "\"device_id\":\"" + device_id + "\",\"data\":{\"tank_limit\":" + tank_limit + ",\"flow\":" + flow + ",\"distance_surface\":" + distance_surface + "}}";
@@ -93,7 +95,7 @@ void App::runCommand(String command)
     }
 }
 
-// Replaces placeholder with LED state value
+
 String App::exposeMetrics(String var)
 {
     //Serial.println(var);
@@ -104,5 +106,11 @@ String App::exposeMetrics(String var)
     else if(var=="SOIL_HUMIDITY") return String(int(getSoilHumidity()*100));
     */
     return String("N/A");
+    
 
+}
+
+
+LedMonitor App::getLedMonitor(){
+    return this->ledMonitor;
 }
