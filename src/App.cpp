@@ -14,8 +14,8 @@ EnvVars vars;
 LedMonitor ledMonitor(1);
 
 const char *device_id = "iot-water-tank-manager";
-const int tank_limit_pin = 15;
-int tank_limit = 0;
+const int tank_limit_pin = 3;
+bool tank_limit = false;
 bool connected = false;
 
 
@@ -37,6 +37,7 @@ void App::setup()
     wifiManager.setParent(this);
     if(wifiManager.init(vars.ssid,vars.gateway,vars.pass,device_id)){
         mqtt_manager.setParent(this);
+        //mqtt_manager.setVars(vars.ssid,vars.gateway,vars.pass,device_id);
         mqtt_manager.reconnect();
         Serial.println(">>> Wifi connected !");
         connected = true;
@@ -64,16 +65,21 @@ void App::loop()
     if (curMillis - prevMillis > pubInterval)
     {
 
-        float flow = sensorWaterflow.getFlowRate();
+        float flow_rate = sensorWaterflow.getFlowRate();
+        int flow_count = sensorWaterflow.getFlowCount();
 
-        if (digitalRead(tank_limit_pin) == HIGH)
-            tank_limit = 1;
-        else
-            tank_limit = 0;
+        if (digitalRead(tank_limit_pin) == HIGH){
+            tank_limit = false;
+            ledMonitor.led3("OFF");
+        }
+        else{
+            tank_limit = true;
+            ledMonitor.led3("ERROR");
+        }
 
         //===================== Ultrasonic distance sensor HR-SR04 =====================================
         int distance_surface = ultrasonic.read(CM);          
-        String json = String("{") + "\"device_id\":\"" + device_id + "\",\"data\":{\"tank_limit\":" + tank_limit + ",\"flow\":" + flow + ",\"distance_surface\":" + distance_surface + "}}";
+        String json = String("{") + "\"device_id\":\"" + device_id + "\",\"data\":{\"tank_limit\":" + tank_limit + ",\"flow_rate\":" + flow_rate + ",\"flow_count\":" + flow_count + ",\"distance_surface\":" + distance_surface + "}}";
         Serial.println(json);
         char copy[250];
         json.toCharArray(copy, 250);
@@ -99,7 +105,7 @@ void App::runCommand(String command)
 String App::exposeMetrics(String var)
 {
     //Serial.println(var);
-    float flow = sensorWaterflow.getFlowRate();
+    float flow_rate = sensorWaterflow.getFlowRate();
     /*
     if(var=="PUMP_STATUS") return pumpRelay.status();
     else if(var=="WATER_FLOW") return String(flow);

@@ -1,16 +1,19 @@
 #include <SensorWaterflow.h>
 #include <Arduino.h>
 volatile byte pulseCount = 0;
+volatile byte flowCount = 0;
 
 void IRAM_ATTR pulseCounter()
 {
     pulseCount++;
+    flowCount++;
+
 }
 
 SensorWaterflow::SensorWaterflow(int pin)
 {
     this->pin = pin;
-    pinMode(this->pin, INPUT_PULLUP);
+    pinMode(this->pin, INPUT);
     attachInterrupt(digitalPinToInterrupt(this->pin), pulseCounter, FALLING);
 }
 
@@ -34,4 +37,9 @@ void SensorWaterflow::loop()
 float SensorWaterflow::getFlowRate()
 {
     return this->flowRate;
+}
+
+int SensorWaterflow::getFlowCount()
+{
+    return this->flowCount;
 }

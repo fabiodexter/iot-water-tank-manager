@@ -36,22 +36,26 @@ void MQTTManager::reconnect()
 {
     while (!mqtt_client.connected())
     {
+        Serial.print("Attempting MQTT connection...");
         if (mqtt_client.connect("device_id", "renato", "$tr0nz0"))
         {
-            Serial.print("Attempting MQTT connection...");
-            Serial.println("connected");
+            parent->getLedMonitor().led2("CONNECTED");
+            Serial.println("mqtt broker connected");
             Serial.println(mqtt_client.subscribe("/controllers/pump_controller/#"));
             Serial.println("subscribed to " + String("/controllers/pump_controller/#"));
         }
         else
         {
             tries = tries + 1;
-            if (tries > maxtries)
+            if (tries > maxtries){
+                parent->getLedMonitor().led2("ERROR");
                 return;
+            }
             Serial.print("failed, rc=");
             Serial.print(mqtt_client.state());
             Serial.println(" try again in 5 seconds");
-            delay(5000);
+            parent->getLedMonitor().led2("CONNECTING");
+            delay(1000);
         }
     }
 }
@@ -71,6 +75,7 @@ void MQTTManager::publish_mqtt(char *copy)
     if (mqtt_client.connected())
     {
         mqtt_client.publish("/sensors", copy);
+        parent->getLedMonitor().led2("DATA");
     }
 }
 

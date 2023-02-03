@@ -40,49 +40,88 @@ void LedMonitor::led1(String status){
     if(this->led1_status=="OFF"){
         pcf8574.digitalWrite(P0, LOW);
         pcf8574.digitalWrite(P1, LOW);
+        pcf8574.digitalWrite(P2, LOW);        
     }
     else if(this->led1_status=="ERROR"){
         pcf8574.digitalWrite(P0, HIGH);
         pcf8574.digitalWrite(P1, LOW);
+        pcf8574.digitalWrite(P2, LOW);        
     }
     else if(this->led1_status=="CONNECTING"){
-        pcf8574.digitalWrite(P0, HIGH);
-        pcf8574.digitalWrite(P1, HIGH);
+        pcf8574.digitalWrite(P0, LOW);
+        pcf8574.digitalWrite(P1, LOW);
+        pcf8574.digitalWrite(P2, HIGH);        
         delay(250);
         pcf8574.digitalWrite(P0, LOW);
         pcf8574.digitalWrite(P1, LOW);
+        pcf8574.digitalWrite(P2, LOW);        
     }
     else if(this->led1_status=="CONNECTED"){
         pcf8574.digitalWrite(P0, LOW);
         pcf8574.digitalWrite(P1, HIGH);
-    }
+        pcf8574.digitalWrite(P2, LOW);        
+    }    
+    else if(this->led1_status=="DATA"){
+        pcf8574.digitalWrite(P0, LOW);
+        pcf8574.digitalWrite(P1, HIGH);
+        pcf8574.digitalWrite(P2, LOW);        
+        delay(250);
+        pcf8574.digitalWrite(P0, LOW);
+        pcf8574.digitalWrite(P1, LOW);
+        pcf8574.digitalWrite(P2, LOW);        
+    }    
 
-    
 };
+
+
+
 void LedMonitor::led2(String status){
     this->led2_status = status;
-    if(this->led2_status=="ERROR"){
-        pcf8574.digitalWrite(P2, HIGH);
+    if(this->led2_status=="OFF"){
         pcf8574.digitalWrite(P3, LOW);
+        pcf8574.digitalWrite(P4, LOW);
+        pcf8574.digitalWrite(P5, LOW);        
     }
-    else if(this->led3_status=="DATA"){
-        pcf8574.digitalWrite(P2, LOW);
+    else if(this->led2_status=="ERROR"){
         pcf8574.digitalWrite(P3, HIGH);
+        pcf8574.digitalWrite(P4, LOW);
+        pcf8574.digitalWrite(P5, LOW);        
     }
+    else if(this->led2_status=="CONNECTING"){
+        pcf8574.digitalWrite(P3, LOW);
+        pcf8574.digitalWrite(P4, LOW);
+        pcf8574.digitalWrite(P5, HIGH);        
+        delay(250);
+        pcf8574.digitalWrite(P3, LOW);
+        pcf8574.digitalWrite(P4, LOW);
+        pcf8574.digitalWrite(P5, LOW);        
+    }
+    else if(this->led2_status=="CONNECTED"){
+        pcf8574.digitalWrite(P3, LOW);
+        pcf8574.digitalWrite(P4, HIGH);
+        pcf8574.digitalWrite(P5, LOW);        
+    }    
+    else if(this->led2_status=="DATA"){
+        pcf8574.digitalWrite(P3, LOW);
+        pcf8574.digitalWrite(P4, HIGH);
+        pcf8574.digitalWrite(P5, LOW);        
+        delay(250);
+        pcf8574.digitalWrite(P3, LOW);
+        pcf8574.digitalWrite(P4, LOW);
+        pcf8574.digitalWrite(P5, LOW);        
+    }    
 
 };
+
 void LedMonitor::led3(String status){
     this->led3_status = status;
-    if(this->led3_status=="ERROR"){
-        pcf8574.digitalWrite(P4, HIGH);
-        pcf8574.digitalWrite(P5, LOW);
+    if(this->led3_status=="OFF"){
+        pcf8574.digitalWrite(P6, LOW);
     }
-    else if(this->led3_status=="DATA"){
-        pcf8574.digitalWrite(P4, LOW);
-        pcf8574.digitalWrite(P5, HIGH);
+    else if(this->led3_status=="ERROR"){
+        pcf8574.digitalWrite(P6, HIGH);
     }
-
-};  
+};
 
 
 String LedMonitor::led1(){
@@ -102,34 +141,6 @@ void LedMonitor::loop()
 
     if (this->curMillis - this->prevMillis > this->refreshRate)
     {
-
-        /*
-        if(this->led1_status == "ERROR"){
-            if(pcf8574.digitalRead(P0)==LOW){
-                pcf8574.digitalWrite(P0, HIGH);
-            }else{
-                pcf8574.digitalWrite(P0, LOW);
-            }
-        }
-
-        if(this->led2_status == "ERROR"){
-            if(pcf8574.digitalRead(P2)==LOW){
-                pcf8574.digitalWrite(P2, HIGH);
-            }else{
-                pcf8574.digitalWrite(P2, LOW);
-            }
-        }
-
-        if(this->led3_status == "ERROR"){
-            if(pcf8574.digitalRead(P4)==LOW){
-                pcf8574.digitalWrite(P4, HIGH);
-            }else{
-                pcf8574.digitalWrite(P4, LOW);
-            }
-        }
-        */
-
-
 
         this->prevMillis = this->curMillis;
     }
