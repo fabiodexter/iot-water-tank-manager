@@ -9,12 +9,9 @@ private:
     long prevMillis = 0;
     int refreshRate = 1000;
     float calibrationFactor = 4.5;
-    float flowRate;
-    int flowCount;
-
+    float flowCount = 0;
 public:
     SensorWaterflow(int pin);
     void loop();
-    float getFlowRate();
     int getFlowCount();
 };

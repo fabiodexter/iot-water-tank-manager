@@ -37,7 +37,6 @@ void App::setup()
     wifiManager.setParent(this);
     if(wifiManager.init(vars.ssid,vars.gateway,vars.pass,device_id)){
         mqtt_manager.setParent(this);
-        //mqtt_manager.setVars(vars.ssid,vars.gateway,vars.pass,device_id);
         mqtt_manager.reconnect();
         Serial.println(">>> Wifi connected !");
         connected = true;
@@ -65,8 +64,8 @@ void App::loop()
     if (curMillis - prevMillis > pubInterval)
     {
 
-        float flow_rate = sensorWaterflow.getFlowRate();
         int flow_count = sensorWaterflow.getFlowCount();
+
 
         if (digitalRead(tank_limit_pin) == HIGH){
             tank_limit = false;
@@ -79,7 +78,7 @@ void App::loop()
 
         //===================== Ultrasonic distance sensor HR-SR04 =====================================
         int distance_surface = ultrasonic.read(CM);          
-        String json = String("{") + "\"device_id\":\"" + device_id + "\",\"data\":{\"tank_limit\":" + tank_limit + ",\"flow_rate\":" + flow_rate + ",\"flow_count\":" + flow_count + ",\"distance_surface\":" + distance_surface + "}}";
+        String json = String("{") + "\"device_id\":\"" + device_id + "\",\"data\":{\"tank_limit\":" + tank_limit + ",\"flow_count\":" + flow_count + ",\"distance_surface\":" + distance_surface + "}}";
         Serial.println(json);
         char copy[250];
         json.toCharArray(copy, 250);
@@ -105,7 +104,7 @@ void App::runCommand(String command)
 String App::exposeMetrics(String var)
 {
     //Serial.println(var);
-    float flow_rate = sensorWaterflow.getFlowRate();
+    int flow_count = sensorWaterflow.getFlowCount();
     /*
     if(var=="PUMP_STATUS") return pumpRelay.status();
     else if(var=="WATER_FLOW") return String(flow);

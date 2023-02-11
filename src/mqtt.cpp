@@ -37,12 +37,12 @@ void MQTTManager::reconnect()
     while (!mqtt_client.connected())
     {
         Serial.print("Attempting MQTT connection...");
-        if (mqtt_client.connect("device_id", "renato", "$tr0nz0"))
+        if (mqtt_client.connect("iot-water-tank-manager", "renato", "$tr0nz0"))
         {
             parent->getLedMonitor().led2("CONNECTED");
             Serial.println("mqtt broker connected");
-            Serial.println(mqtt_client.subscribe("/controllers/pump_controller/#"));
-            Serial.println("subscribed to " + String("/controllers/pump_controller/#"));
+            Serial.println(mqtt_client.subscribe("/controllers/iot-water-tank-manager/#"));
+            Serial.println("subscribed to " + String("/controllers/iot-water-tank-manager/#"));
         }
         else
         {
