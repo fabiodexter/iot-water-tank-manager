@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Well Pump Controller</title>
+    <title>Water Tank Manager</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" href="data:," />
     <link
@@ -14,14 +14,22 @@
   </head>
   <body class="wifimanager">
     <div class="topnav">
-      <h1>Well Pump Controller</h1>
+      <h1>Water Tank Manager</h1>
     </div>
     <div class="content">
 
           <form action="/" method="POST">
+
+            <div class="group">
+              <h3>General</h3>
+              <div class="field">
+              <label for="device_id">device_id</label>
+              <input type="text" id="device_id" name="device_id" />
+              </div>
+            </div>
+
             <div class="group">
               <h3>WiFi Config</h3>
-
               <div class="field">
               <label for="ssid">SSID</label>
               <input type="text" id="ssid" name="ssid" />
@@ -38,8 +46,8 @@
                   name="gateway"
                 />
               </div>
-
             </div>
+
             <div class="group">
               <h3>MQTT config</h3>
               <div class="field">

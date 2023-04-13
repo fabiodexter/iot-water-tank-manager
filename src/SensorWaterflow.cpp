@@ -1,11 +1,13 @@
 #include <SensorWaterflow.h>
 #include <Arduino.h>
 volatile byte pulseCount = 0;
+int long newCount = 0;
 
 
 void IRAM_ATTR pulseCounter()
 {
     pulseCount++;
+    newCount ++;
 }
 
 SensorWaterflow::SensorWaterflow(int pin)
@@ -27,11 +29,16 @@ void SensorWaterflow::loop()
         // that to scale the output. We also apply the calibrationFactor to scale the output
         // based on the number of pulses per second per units of measure (litres/minute in
         // this case) coming from the sensor.
-        //this->flowRate = ((1000.0 / (this->curMillis - this->prevMillis)) * pulseCount) / this->calibrationFactor;
-        this->flowCount = pulseCount;
-        //pulseCount = 0;
+        this->flowRate = ((1000.0 / (this->curMillis - this->prevMillis)) * pulseCount) / this->calibrationFactor;
+        this->flowCount = newCount;
+        pulseCount = 0;
         this->prevMillis = this->curMillis;
     }
+}
+
+float SensorWaterflow::getFlowRate()
+{
+    return this->flowRate;
 }
 
 int SensorWaterflow::getFlowCount()

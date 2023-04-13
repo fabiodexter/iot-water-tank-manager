@@ -13,6 +13,7 @@ private:
 
 public:
     MQTTManager();
+    bool getStatus();
     void reconnect();
     void loop_mqtt();
     void publish_mqtt(char *copy);

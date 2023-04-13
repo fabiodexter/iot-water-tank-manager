@@ -9,12 +9,12 @@ private:
     const char *device_id = "iot-water-tank-manager";
     long curMillis = 0;
     long prevMillis = 0;
-    int pubInterval = 1000;
+    int pubInterval = 10000;
     LedMonitor ledMonitor;
 
 public:
-    App()
-    {
+    App(){
+
     }
     void setup();
     void loop();

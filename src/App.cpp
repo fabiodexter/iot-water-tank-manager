@@ -13,7 +13,8 @@ MQTTManager mqtt_manager;
 EnvVars vars;
 LedMonitor ledMonitor(1);
 
-const char *device_id = "iot-water-tank-manager";
+
+
 const int tank_limit_pin = 3;
 bool tank_limit = false;
 bool connected = false;
@@ -35,7 +36,9 @@ void App::setup()
 
     vars.initFS();
     wifiManager.setParent(this);
-    if(wifiManager.init(vars.ssid,vars.gateway,vars.pass,device_id)){
+    
+
+    if(wifiManager.init(vars.ssid,vars.gateway,vars.pass,vars.device_id)){
         mqtt_manager.setParent(this);
         mqtt_manager.reconnect();
         Serial.println(">>> Wifi connected !");
@@ -60,13 +63,19 @@ void App::loop()
     mqtt_manager.loop_mqtt();
 
 
+    // waterflow sensor  
+    float flow_rate = sensorWaterflow.getFlowRate();
+    int flow_count = sensorWaterflow.getFlowCount();
+
+    int ii = pubInterval;
+    if(flow_rate>0) ii = 1000;
+
     // json output =========================================================================
-    if (curMillis - prevMillis > pubInterval)
+    if (curMillis - prevMillis > ii)
     {
 
-        int flow_count = sensorWaterflow.getFlowCount();
 
-
+        // water level sensor 
         if (digitalRead(tank_limit_pin) == HIGH){
             tank_limit = false;
             ledMonitor.led3("OFF");
@@ -76,13 +85,19 @@ void App::loop()
             ledMonitor.led3("ERROR");
         }
 
-        //===================== Ultrasonic distance sensor HR-SR04 =====================================
-        int distance_surface = ultrasonic.read(CM);          
-        String json = String("{") + "\"device_id\":\"" + device_id + "\",\"data\":{\"tank_limit\":" + tank_limit + ",\"flow_count\":" + flow_count + ",\"distance_surface\":" + distance_surface + "}}";
-        Serial.println(json);
-        char copy[250];
-        json.toCharArray(copy, 250);
-        mqtt_manager.publish_mqtt(copy);
+        // Ultrasonic distance sensor HR-SR04 
+        int distance_surface = ultrasonic.read(CM);    
+
+        // Publishing results 
+        if(mqtt_manager.getStatus()==true){
+            String json = String("{") + "\"device_id\":\"" + vars.device_id + "\",\"data\":{\"tank_limit\":" + tank_limit + ",\"flow_count\":" + flow_count + ",\"flow_rate\":" + flow_rate + ",\"distance_surface\":" + distance_surface + "}}";
+            Serial.println(json);
+            char copy[250];
+            json.toCharArray(copy, 250);
+            mqtt_manager.publish_mqtt(copy);
+        }
+
+        //closing loop
         prevMillis = curMillis;
     }
 
@@ -104,7 +119,7 @@ void App::runCommand(String command)
 String App::exposeMetrics(String var)
 {
     //Serial.println(var);
-    int flow_count = sensorWaterflow.getFlowCount();
+    float flow_rate = sensorWaterflow.getFlowRate();
     /*
     if(var=="PUMP_STATUS") return pumpRelay.status();
     else if(var=="WATER_FLOW") return String(flow);

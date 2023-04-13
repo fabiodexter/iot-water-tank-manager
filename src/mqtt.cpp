@@ -5,11 +5,8 @@
 
 WiFiClient espClient;
 PubSubClient mqtt_client(espClient);
-
-int tries = 0;
-const int maxtries = 5;
-int mqtt_connect_millis = 0;
 App *parent;
+
 
 void subscribe_callback(char *topic, byte *payload, unsigned int length)
 {
@@ -17,10 +14,10 @@ void subscribe_callback(char *topic, byte *payload, unsigned int length)
     payload[length] = '\0';
 
     String strTopic = (String)topic;
-    Serial.println("topic:" + strTopic);
+    //Serial.println("topic:" + strTopic);
 
     String strPayload = String((char *)payload); // convert to string
-    Serial.println("mqtt command received:" + strPayload);
+    //Serial.println("mqtt command received:" + strPayload);
     parent->runCommand(strPayload);
 }
 
@@ -36,24 +33,19 @@ void MQTTManager::reconnect()
 {
     while (!mqtt_client.connected())
     {
-        Serial.print("Attempting MQTT connection...");
-        if (mqtt_client.connect("iot-water-tank-manager", "renato", "$tr0nz0"))
+        Serial.print(">> Attempting MQTT connection...");
+        if (mqtt_client.connect("iot-water-tank-manager-02", "renato", "$tr0nz0"))
         {
             parent->getLedMonitor().led2("CONNECTED");
-            Serial.println("mqtt broker connected");
-            Serial.println(mqtt_client.subscribe("/controllers/iot-water-tank-manager/#"));
-            Serial.println("subscribed to " + String("/controllers/iot-water-tank-manager/#"));
+            Serial.println(">> mqtt broker connected");
+            mqtt_client.subscribe("/controllers/iot-water-tank-manager-02/#");
+            Serial.println(">> subscribed to " + String("/controllers/iot-water-tank-manager-02/#"));
         }
         else
         {
-            tries = tries + 1;
-            if (tries > maxtries){
-                parent->getLedMonitor().led2("ERROR");
-                return;
-            }
-            Serial.print("failed, rc=");
+            Serial.print(">> failed, rc=");
             Serial.print(mqtt_client.state());
-            Serial.println(" try again in 5 seconds");
+            Serial.println(">> try again in 5 seconds");
             parent->getLedMonitor().led2("CONNECTING");
             delay(1000);
         }
@@ -81,7 +73,12 @@ void MQTTManager::publish_mqtt(char *copy)
 
 void MQTTManager::setParent(App *_parent)
 {
-    Serial.println("mqtt-> setting parent");
+    Serial.println(">> mqtt-> setting parent");
     this->parent = _parent;
     parent = _parent;
+}
+
+bool MQTTManager::getStatus()
+{
+    return mqtt_client.connected();
 }

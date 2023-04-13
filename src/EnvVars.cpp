@@ -12,24 +12,30 @@ EnvVars::EnvVars(){
 // Initialize LittleFS
 void EnvVars::initFS()
 {
-    Serial.println("initfs");
+    Serial.println(">> initfs");
 
     if (!LittleFS.begin())
     {
-        Serial.println("An error has occurred while mounting LittleFS");
+        Serial.println(">> An error has occurred while mounting LittleFS");
     }
     else
     {
-        Serial.println("LittleFS mounted successfully");
+        Serial.println(">> LittleFS mounted successfully");
+
+        device_id = readFile(LittleFS, device_idPath);
+        Serial.println(">> device_id set to: " + device_id);
+
         ssid = readFile(LittleFS, ssidPath);
         pass = readFile(LittleFS, passPath);
-        ip = readFile(LittleFS, ipPath);
         gateway = readFile(LittleFS, gatewayPath);
 
-        Serial.println(ssid);
-        Serial.println(pass);
-        Serial.println(ip);
-        Serial.println(gateway);
+        mqtt_host = readFile(LittleFS, mqtt_hostPath);
+        mqtt_port = readFile(LittleFS, mqtt_portPath);
+        mqtt_user = readFile(LittleFS, mqtt_userPath);
+        mqtt_pass = readFile(LittleFS, mqtt_passPath);
+
+
+         
     }    
 }
 
