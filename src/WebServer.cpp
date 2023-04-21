@@ -224,7 +224,7 @@ bool WebServer::initAPMode(String newHostname)
 
         // Web Server Root URL
         server.on("/", HTTP_GET, [this](AsyncWebServerRequest *request){ 
-          request->send(LittleFS, "/WebServer.html", "text/html"); 
+          request->send(LittleFS, "/wifimanager.html", "text/html"); 
         });
 
         server.serveStatic("/", LittleFS, "/");
