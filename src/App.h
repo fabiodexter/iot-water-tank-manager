@@ -16,6 +16,7 @@ public:
     App(){
 
     }
+    void reconnectWifi();
     void setup();
     void loop();
     void runCommand(String command);

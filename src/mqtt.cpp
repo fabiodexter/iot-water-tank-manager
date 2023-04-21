@@ -7,6 +7,7 @@ WiFiClient espClient;
 PubSubClient mqtt_client(espClient);
 App *parent;
 
+bool connecting = false;
 
 void subscribe_callback(char *topic, byte *payload, unsigned int length)
 {
@@ -24,22 +25,26 @@ void subscribe_callback(char *topic, byte *payload, unsigned int length)
 
 MQTTManager::MQTTManager()
 {
-    mqtt_client.setServer("172.16.0.11", 1883);
-    mqtt_client.setCallback(subscribe_callback);//aqui começa os problemas
+        mqtt_client.setServer("172.16.0.11", 1883);
+        mqtt_client.setCallback(subscribe_callback);//aqui começa os problemas
+
 }
 
 
 void MQTTManager::reconnect()
 {
+    connecting = true;
+
     while (!mqtt_client.connected())
     {
         Serial.print(">> Attempting MQTT connection...");
         if (mqtt_client.connect("iot-water-tank-manager-02", "renato", "$tr0nz0"))
         {
-            parent->getLedMonitor().led2("CONNECTED");
+            //parent->getLedMonitor().led2("CONNECTED");
             Serial.println(">> mqtt broker connected");
             mqtt_client.subscribe("/controllers/iot-water-tank-manager-02/#");
             Serial.println(">> subscribed to " + String("/controllers/iot-water-tank-manager-02/#"));
+            connecting = false;
         }
         else
         {
@@ -47,6 +52,7 @@ void MQTTManager::reconnect()
             Serial.print(mqtt_client.state());
             Serial.println(">> try again in 5 seconds");
             parent->getLedMonitor().led2("CONNECTING");
+           
             delay(1000);
         }
     }
@@ -55,7 +61,7 @@ void MQTTManager::reconnect()
 
 void MQTTManager::loop_mqtt()
 {
-    if (!mqtt_client.connected())
+    if (!mqtt_client.connected() && connecting == false)
     {
         reconnect();
     }
@@ -67,13 +73,12 @@ void MQTTManager::publish_mqtt(char *copy)
     if (mqtt_client.connected())
     {
         mqtt_client.publish("/sensors", copy);
-        parent->getLedMonitor().led2("DATA");
+        //parent->getLedMonitor().led2("DATA");
     }
 }
 
 void MQTTManager::setParent(App *_parent)
 {
-    Serial.println(">> mqtt-> setting parent");
     this->parent = _parent;
     parent = _parent;
 }
