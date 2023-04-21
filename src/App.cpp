@@ -1,14 +1,14 @@
 #include <Arduino.h>
 #include <App.h>
 #include <SensorWaterflow.h>
-#include <WifiManager.h>
+#include <WebServer.h>
 #include <mqtt.h>
 #include <EnvVars.h>
 
 
 
 SensorWaterflow sensorWaterflow(13);
-WifiManager wifiManager;
+WebServer webserver;
 MQTTManager mqtt_manager;
 EnvVars vars;
 LedMonitor ledMonitor(1);
@@ -38,7 +38,7 @@ void App::setup()
     
     pinMode(tank_limit_pin, INPUT);
     
-    wifiManager.setParent(this);
+    webserver.setParent(this);
     
     this->ledMonitor.led1("OFF");
     //localGateway.fromString(vars.gateway);
@@ -61,7 +61,7 @@ void App::reconnectWifi(){
         Serial.println(">> connecting...");
         tries++;
         if(tries>5){
-            wifiManager.initAPMode("ssid","gateway","pass","newhost");
+            webserver.initAPMode(vars.device_id);
             return;
         }
     }
@@ -74,14 +74,14 @@ void App::reconnectWifi(){
     this->ledMonitor.led1("CONNECTED");    
     wifi_status = "connected";
     //starting webserver
-    wifiManager.startWebserver();
+    webserver.startWebserver();
 }
 
 
 void App::loop()
 {
     curMillis = millis();
-    wifiManager.loop();
+    webserver.loop();
     ledMonitor.loop();
 
 
