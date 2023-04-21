@@ -81,8 +81,8 @@ void App::reconnectWifi(){
 void App::loop()
 {
     curMillis = millis();
-    //wifiManager.loop();
-    //ledMonitor.loop();
+    wifiManager.loop();
+    ledMonitor.loop();
 
 
     if(wifi_status == "connecting") {
@@ -104,7 +104,7 @@ void App::loop()
     int flow_count = sensorWaterflow.getFlowCount();
 
     int ii = pubInterval;
-    if(flow_rate>0) ii = 5000;
+    if(flow_rate>0) ii = 1000;
 
     // json output =========================================================================
     if (curMillis - prevMillis > ii)

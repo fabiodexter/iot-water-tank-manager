@@ -25,9 +25,8 @@ void subscribe_callback(char *topic, byte *payload, unsigned int length)
 
 MQTTManager::MQTTManager()
 {
-        mqtt_client.setServer("172.16.0.11", 1883);
-        mqtt_client.setCallback(subscribe_callback);//aqui começa os problemas
-
+    mqtt_client.setServer("172.16.0.11", 1883);
+    mqtt_client.setCallback(subscribe_callback);//aqui começa os problemas
 }
 
 
@@ -40,7 +39,7 @@ void MQTTManager::reconnect()
         Serial.print(">> Attempting MQTT connection...");
         if (mqtt_client.connect("iot-water-tank-manager-02", "renato", "$tr0nz0"))
         {
-            //parent->getLedMonitor().led2("CONNECTED");
+            //parent->getLedMonitor().led2("CONNECTED"); //BUG: this is causing exceptions
             Serial.println(">> mqtt broker connected");
             mqtt_client.subscribe("/controllers/iot-water-tank-manager-02/#");
             Serial.println(">> subscribed to " + String("/controllers/iot-water-tank-manager-02/#"));
@@ -50,10 +49,10 @@ void MQTTManager::reconnect()
         {
             Serial.print(">> failed, rc=");
             Serial.print(mqtt_client.state());
-            Serial.println(">> try again in 5 seconds");
-            parent->getLedMonitor().led2("CONNECTING");
+            Serial.println(">> trying again in 5 seconds");
+            //parent->getLedMonitor().led2("CONNECTING"); //BUG: this is causing exceptions
            
-            delay(1000);
+            delay(5000);
         }
     }
 }
@@ -73,7 +72,7 @@ void MQTTManager::publish_mqtt(char *copy)
     if (mqtt_client.connected())
     {
         mqtt_client.publish("/sensors", copy);
-        //parent->getLedMonitor().led2("DATA");
+        //parent->getLedMonitor().led2("DATA"); //BUG: this is causing exceptions
     }
 }
 
