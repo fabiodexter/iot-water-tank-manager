@@ -12,12 +12,13 @@ WebServer webserver;
 MQTTManager mqtt_manager;
 EnvVars vars;
 LedMonitor ledMonitor(1);
-
-
+String wifi_status = "disconnected";
 
 const int tank_limit_pin = 3;
+
 bool tank_limit = false;
-String wifi_status = "disconnected";
+float flow_rate = 0.00;
+int distance_surface = 500;
 
 
 
@@ -50,6 +51,12 @@ void App::reconnectWifi(){
 
     
     wifi_status =  "connecting";
+
+    if(vars.ssid=="" || vars.pass=="") {
+        webserver.initAPMode(vars.device_id);
+        return;
+    }
+
     Serial.println(">> Connecting to WiFi...");
 
     WiFi.disconnect(true);
@@ -63,6 +70,7 @@ void App::reconnectWifi(){
         Serial.println(">> connecting...");
         tries++;
         if(tries>5){
+            //starting webserver in AP mode
             webserver.initAPMode(vars.device_id);
             return;
         }
@@ -72,7 +80,7 @@ void App::reconnectWifi(){
     Serial.println(WiFi.localIP());    
     WiFi.setHostname(vars.device_id.c_str());
     Serial.println(">> hostname: " + WiFi.hostname());
-    delay(5000);
+    delay(1000);
     this->ledMonitor.led1("CONNECTED");    
     wifi_status = "connected";
     //starting webserver
@@ -87,6 +95,7 @@ void App::loop()
     ledMonitor.loop();
 
 
+
     if(wifi_status == "connecting") {
         return;
     }
@@ -96,13 +105,12 @@ void App::loop()
         return;
     }
 
-    //Serial.println(wifi_status);
     mqtt_manager.loop_mqtt();
 
 
     // waterflow sensor  
     sensorWaterflow.loop();
-    float flow_rate = sensorWaterflow.getFlowRate();
+    flow_rate = sensorWaterflow.getFlowRate();
     int flow_count = sensorWaterflow.getFlowCount();
 
     int ii = pubInterval;
@@ -122,7 +130,7 @@ void App::loop()
         }
 
         // Ultrasonic distance sensor HR-SR04 
-        int distance_surface = ultrasonic.read(CM);    
+        distance_surface = ultrasonic.read(CM);    
 
         // Publishing results 
         if(mqtt_manager.getStatus()==true){
@@ -157,15 +165,13 @@ void App::runCommand(String command)
 }
 
 
+
 String App::exposeMetrics(String var)
 {
-    //Serial.println(var);
-    float flow_rate = sensorWaterflow.getFlowRate();
-
-    //if(var=="PUMP_STATUS") return pumpRelay.status();
-    //else 
-    if(var=="WATER_FLOW") return String(flow_rate);
-    //else if(var=="SOIL_HUMIDITY") return String(int(getSoilHumidity()*100));
+    if(var=="DEVICE_ID") return String(vars.device_id);
+    else if(var=="DISTANCE_SURFACE") return String(distance_surface);
+    else if(var=="WATER_FLOW") return String(flow_rate);
+    else if(var=="TANK_LIMIT") return String(tank_limit);
 
     return String("N/A");
 }

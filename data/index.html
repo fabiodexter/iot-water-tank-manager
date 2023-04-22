@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Well Pump Controller</title>
+    <title>iot device</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" type="text/css" href="style.css" />
     <link rel="icon" type="image/png" href="favicon.png" />
@@ -19,10 +19,12 @@
 </svg>
 
     <div class="topnav">
-      <h1>Well Pump Controller</h1>
+      <h1>iot Water Pump Manager</h1>
+      <h6>%DEVICE_ID%</h6>
     </div>
     <div class="content">
       <div class="card-grid">
+        <!--
         <div class="card" id="pump" data-status="%PUMP_STATUS%">
           <div class="card-title">Well Pump</div>
           <div class="card-body">
@@ -38,7 +40,17 @@
           </div>
           <div class="state">State: %PUMP_STATUS%</div>
         </div>
-
+        -->
+        
+        <div class="card" id="distance_surface" data-status="%TANK_LIMIT%">
+          <div class="card-title">Distance Surface</div>
+          <div class="card-body">
+            <div class="value">%DISTANCE_SURFACE%</div>            
+            <div class="unit">cm</div>
+          </div>
+          <div class="state">State: %TANK_LIMIT%</div>
+        </div>
+        
         <div class="card" id="waterflow" data-status="%WATER_FLOW%">
           <div class="card-title">Water Flow</div>
           <div class="card-body">
@@ -46,16 +58,8 @@
             <div class="unit">l/min</div>
           </div>
           <div class="state">State: %WATER_FLOW%</div>
-        </div>
-        
-        <div class="card" id="soil" data-status="%SOIL_HUMIDITY%">
-          <div class="card-title">Soil Humidity</div>
-          <div class="card-body">
-            <div class="value">%SOIL_HUMIDITY%&#37;</div>            
-            <div class="unit">relative humidity</div>
-          </div>
-          <div class="state">State: %SOIL_HUMIDITY%</div>
-        </div>        
+        </div>       
+
       </div>
     </div>
   </body>

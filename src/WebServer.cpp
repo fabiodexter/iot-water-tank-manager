@@ -210,7 +210,8 @@ void WebServer::startWebserver(){
 
 bool WebServer::initAPMode(String newHostname)
 {
-
+        if(newHostname=="") newHostname = "iot-generic-device-AP";
+        else newHostname = newHostname + "-AP";
         parent__->getLedMonitor().led1("ERROR");
         // Connect to Wi-Fi network with SSID and password
         Serial.println(">> Setting AP (Access Point)");
@@ -249,6 +250,7 @@ bool WebServer::initAPMode(String newHostname)
 void WebServer::loop()
 {
   if(restart){
+    delay(3000);
     ESP.restart();
   }
 }

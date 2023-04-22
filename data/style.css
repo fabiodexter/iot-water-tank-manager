@@ -4,14 +4,11 @@ html {
     text-align: center;
     background-color: #181818;
   }
-  
-  h1 {
-    font-size: 1rem;
-    color: #ffffff85;
-    text-transform: uppercase;
-    margin: 1.5em;
+  body {  
+    margin: 0;
   }
   
+
   p { 
     font-size: 1rem;
   }
@@ -23,10 +20,22 @@ html {
     margin-bottom: 1em;
   }
   
-  body {  
-    margin: 0;
+    
+  .topnav h1 {
+    font-size: 1rem;
+    color: #ffffff85;
+    text-transform: uppercase;
+    margin: 1.5em;
   }
   
+    
+  .topnav h6 {
+    font-size: 0.8rem;
+    color: #ffffff85;
+    margin: 1.5em;
+  }
+  
+
   .content {
     /* padding: 5%; */
     background: white;
@@ -69,6 +78,17 @@ html {
     filter: none;
   }
 
+
+  .card[data-status="1"] {
+    background-color:red;
+    box-shadow: none;
+  }
+
+
+  .card[data-status="1"] svg{
+    stroke: #a91117;
+    filter: none;
+  }  
 
   .card-title {
     font-size: 1.2rem;
