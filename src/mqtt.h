@@ -10,6 +10,11 @@ private:
     const int maxtries = 5;
     int mqtt_connect_millis = 0;
     App *parent;
+    char* device_id;
+    char* mqtt_host;
+    int mqtt_port;
+    char* mqtt_user;
+    char* mqtt_pass;
 
 public:
     MQTTManager();
@@ -18,4 +23,5 @@ public:
     void loop_mqtt();
     void publish_mqtt(char *copy);
     void setParent(App *parent);
+    void setParams(char* device_id,char* mqtt_host,int mqtt_port,char* mqtt_user,char* mqtt_pass);
 };

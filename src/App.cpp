@@ -39,7 +39,9 @@ void App::setup()
     pinMode(tank_limit_pin, INPUT);
     
     webserver.setParent(this);
-    
+    mqtt_manager.setParent(this);
+    mqtt_manager.setParams((char*) vars.device_id.c_str(),(char*) vars.mqtt_host.c_str(), vars.mqtt_port.toInt(),(char*) vars.mqtt_user.c_str(),(char*) vars.mqtt_pass.c_str());
+
     this->ledMonitor.led1("OFF");
     //localGateway.fromString(vars.gateway);
 }
@@ -57,7 +59,7 @@ void App::reconnectWifi(){
     while (WiFi.status() != WL_CONNECTED)
     {
         this->ledMonitor.led1("CONNECTING");
-        delay(1000);
+        delay(5000);
         Serial.println(">> connecting...");
         tries++;
         if(tries>5){
@@ -159,11 +161,12 @@ String App::exposeMetrics(String var)
 {
     //Serial.println(var);
     float flow_rate = sensorWaterflow.getFlowRate();
-    /*
-    if(var=="PUMP_STATUS") return pumpRelay.status();
-    else if(var=="WATER_FLOW") return String(flow);
-    else if(var=="SOIL_HUMIDITY") return String(int(getSoilHumidity()*100));
-    */
+
+    //if(var=="PUMP_STATUS") return pumpRelay.status();
+    //else 
+    if(var=="WATER_FLOW") return String(flow_rate);
+    //else if(var=="SOIL_HUMIDITY") return String(int(getSoilHumidity()*100));
+
     return String("N/A");
 }
 

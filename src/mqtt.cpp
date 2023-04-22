@@ -25,8 +25,7 @@ void subscribe_callback(char *topic, byte *payload, unsigned int length)
 
 MQTTManager::MQTTManager()
 {
-    mqtt_client.setServer("172.16.0.11", 1883);
-    mqtt_client.setCallback(subscribe_callback);//aqui começa os problemas
+
 }
 
 
@@ -37,12 +36,13 @@ void MQTTManager::reconnect()
     while (!mqtt_client.connected())
     {
         Serial.print(">> Attempting MQTT connection...");
-        if (mqtt_client.connect("iot-water-tank-manager-02", "renato", "$tr0nz0"))
+        if (mqtt_client.connect(this->device_id, this->mqtt_user, this->mqtt_pass))
         {
+            String topic = "/controllers/" + String(this->device_id) + "/#";
             //parent->getLedMonitor().led2("CONNECTED"); //BUG: this is causing exceptions
             Serial.println(">> mqtt broker connected");
-            mqtt_client.subscribe("/controllers/iot-water-tank-manager-02/#");
-            Serial.println(">> subscribed to " + String("/controllers/iot-water-tank-manager-02/#"));
+            mqtt_client.subscribe(topic.c_str());
+            Serial.println(">> subscribed to " + topic);
             connecting = false;
         }
         else
@@ -80,6 +80,17 @@ void MQTTManager::setParent(App *_parent)
 {
     this->parent = _parent;
     parent = _parent;
+}
+
+void MQTTManager::setParams(char* device_id, char* mqtt_host,int mqtt_port,char* mqtt_user,char* mqtt_pass)
+{
+    this->device_id = device_id;
+    this->mqtt_host = mqtt_host;
+    this->mqtt_port = mqtt_port;
+    this->mqtt_user = mqtt_user;
+    this->mqtt_pass = mqtt_pass;
+    mqtt_client.setServer(mqtt_host, mqtt_port);
+    mqtt_client.setCallback(subscribe_callback);//aqui começa os problemas    
 }
 
 bool MQTTManager::getStatus()
