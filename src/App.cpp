@@ -1,25 +1,26 @@
+
+//Basic modules
 #include <Arduino.h>
 #include <App.h>
-#include <SensorWaterflow.h>
-#include <WebServer.h>
+#include <EnvVars.h>
 #include <WifiManager.h>
 #include <mqtt.h>
-#include <EnvVars.h>
-
-
-
+#include <WebServer.h>
+EnvVars vars;
 WebServer webserver;
 WifiManager wifi_manager;
 MQTTManager mqtt_manager;
-EnvVars vars;
-SensorWaterflow sensorWaterflow(13);
 LedMonitor ledMonitor(1);
 
 
 
-
+//Tank limit sensor
 const int tank_limit_pin = 3;
 bool tank_limit = false;
+
+//waterflow sensor
+#include <SensorWaterflow.h>
+SensorWaterflow sensorWaterflow(13);
 float flow_rate = 0.00;
 
 // Ultrasonic distance sensor HR-SR04 
@@ -31,23 +32,21 @@ Ultrasonic ultrasonic(14, 12);
 
 void App::setup()
 {
-    
+
+    //setup Serial port    
     Serial.begin(115200);
     Serial.println("");
     Serial.println(">>> starting app");
-    this->ledMonitor = ledMonitor;
-    vars.initFS();
-    
-    pinMode(tank_limit_pin, INPUT);
-    
-    webserver.setParent(this);
-    wifi_manager.setParent(this);
-    wifi_manager.setParams((char*) vars.device_id.c_str(),(char*) vars.ssid.c_str(), (char*) vars.gateway.c_str(),(char*) vars.pass.c_str());
-    mqtt_manager.setParent(this);
-    mqtt_manager.setParams((char*) vars.device_id.c_str(),(char*) vars.mqtt_host.c_str(), vars.mqtt_port.toInt(),(char*) vars.mqtt_user.c_str(),(char*) vars.mqtt_pass.c_str());
 
-    this->ledMonitor.led1("OFF");
-    //localGateway.fromString(vars.gateway); //not being used yet...dont know why
+    //Basic modules setup
+    vars.initFS();
+    this->ledMonitor = ledMonitor;
+    webserver.setParent(this);
+    wifi_manager.setParams(this,vars);
+    mqtt_manager.setParams(this,vars);
+
+    //tank limit sensor
+    pinMode(tank_limit_pin, INPUT);    
 }
 
 
@@ -55,6 +54,8 @@ void App::setup()
 void App::loop()
 {
     curMillis = millis();
+
+    //loop basic modules
     webserver.loop();
     ledMonitor.loop();
     wifi_manager.loop();
@@ -67,7 +68,7 @@ void App::loop()
     int flow_count = sensorWaterflow.getFlowCount();
 
 
-
+    //establishes pubInterval based on flow_rate
     int ii = pubInterval;
     if(flow_rate>0) ii = 1000;
     if (curMillis - prevMillis > ii)
@@ -93,9 +94,7 @@ void App::loop()
             json.toCharArray(copy, 250);
             mqtt_manager.publish_mqtt(copy);
         }
-
         
-
         //closing loop
         prevMillis = curMillis;
     }

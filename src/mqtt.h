@@ -2,26 +2,22 @@
 #include <PubSubClient.h>
 #include <Arduino.h>
 #include <App.h>
-
+#include <EnvVars.h>
 class MQTTManager
 {
 private:
-    int tries = 0;
-    const int maxtries = 5;
-    int mqtt_connect_millis = 0;
     App *parent;
-    char* device_id;
-    char* mqtt_host;
-    int mqtt_port;
-    char* mqtt_user;
-    char* mqtt_pass;
+    String device_id;
+    String mqtt_host;
+    String mqtt_port;
+    String mqtt_user;
+    String mqtt_pass;
 
 public:
     MQTTManager();
     bool isConnected();
     void reconnect();
     void loop();
-    void setParent(App *parent);
-    void setParams(char* device_id,char* mqtt_host,int mqtt_port,char* mqtt_user,char* mqtt_pass);
+    void setParams(App *parent, EnvVars vars);
     void publish_mqtt(char *copy);
 };

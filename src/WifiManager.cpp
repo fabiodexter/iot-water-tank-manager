@@ -1,40 +1,51 @@
 #include <WifiManager.h>
 
-String wifi_status = "";
+String wifi_status = "disconnected";
 
 WifiManager::WifiManager(){
-
+    
 }
 
+void WifiManager::setParams(App *_parent, EnvVars vars){
+    Serial.println(">> Setting up WifiManager...");
+    this->parent = _parent;
+    this->device_id = vars.device_id;
+    this->ssid = vars.ssid;
+    this->gateway = vars.gateway;
+    this->pass = vars.pass;
+    this->parent->getLedMonitor().led1("OFF");
+}
 
 void WifiManager::reconnect(){
 
     wifi_status =  "connecting";
 
     //if(this->ssid=="" || this->pass=="") {
-        //this->parent->getWebServer.initAPMode(this->device_id);
+        //parent->getWebServer().initAPMode(this->device_id);
        // return;
     //}
 
+
     WiFi.disconnect(true);
     WiFi.begin(this->ssid, this->pass);
+
 
     while (WiFi.status() != WL_CONNECTED)
     {
         Serial.println(">> Connecting to WiFi...");
         parent->getLedMonitor().led1("CONNECTING");
-        delay(5000);
+        delay(2000);
     }
 
     Serial.print(">> WiFi connected! IP Address: ");
     Serial.println(WiFi.localIP());    
-    WiFi.setHostname(this->device_id);
+    WiFi.setHostname((char*) this->device_id.c_str());
     Serial.println(">> hostname: " + WiFi.hostname());
-    delay(1000);
+    //localGateway.fromString(vars.gateway); //not being used yet...dont know why
     parent->getLedMonitor().led1("CONNECTED");    
     wifi_status = "connected";
     //starting webserver
-    //this->parent->getWebServer.startWebserver();
+    //parent->getWebServer().startWebserver();
 }
 
 
@@ -51,22 +62,8 @@ void WifiManager::loop()
 }
 
 
-void WifiManager::setParent(App *_parent)
-{
-    this->parent = _parent;
-}
-
-void WifiManager::setParams(char* device_id, char* ssid,char* gateway,char* pass)
-{
-    this->device_id = device_id;
-    this->ssid = ssid;
-    this->gateway = gateway;
-    this->pass = pass;
-}
-
 bool WifiManager::isConnected()
 {
     if(WiFi.status() == WL_CONNECTED) return true;
     else return false;
 }
-

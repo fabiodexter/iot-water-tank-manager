@@ -1,3 +1,6 @@
+#ifndef ENV_VARS_INCLUDED
+#define ENV_VARS_INCLUDED
+
 #include <Arduino.h>
 #include <LittleFS.h>
 #include <App.h>
@@ -33,3 +36,4 @@ public:
     String mqtt_user;
     String mqtt_pass;
 };
+#endif // ENV_VARS_INCLUDED

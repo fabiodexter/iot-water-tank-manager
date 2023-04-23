@@ -31,16 +31,16 @@ MQTTManager::MQTTManager()
 
 void MQTTManager::reconnect()
 {
-    if(!this->parent->isWifiConnected()) return;
+    if(!parent->isWifiConnected()) return;
     connecting = true;
 
     while (!mqtt_client.connected())
     {
         Serial.print(">> Attempting MQTT connection...");
-        if (mqtt_client.connect(this->device_id, this->mqtt_user, this->mqtt_pass))
+        if (mqtt_client.connect(this->device_id.c_str(), this->mqtt_user.c_str(), this->mqtt_pass.c_str()))
         {
-            String topic = "/controllers/" + String(this->device_id) + "/#";
-            parent->getLedMonitor().led2("CONNECTED"); //BUG: this is causing exceptions in some circunstances
+            String topic = "/controllers/" + this->device_id + "/#";
+            parent->getLedMonitor().led2("CONNECTED"); 
             Serial.println(">> mqtt broker connected");
             mqtt_client.subscribe(topic.c_str());
             Serial.println(">> subscribed to " + topic);
@@ -51,8 +51,7 @@ void MQTTManager::reconnect()
             Serial.print(">> failed, rc=");
             Serial.print(mqtt_client.state());
             Serial.println(">> trying again...");
-            parent->getLedMonitor().led2("CONNECTING"); //BUG: this is causing exceptions in some circunstances
-           
+            parent->getLedMonitor().led2("CONNECTING");            
             delay(1000);
         }
     }
@@ -73,25 +72,21 @@ void MQTTManager::publish_mqtt(char *copy)
     if (mqtt_client.connected())
     {
         mqtt_client.publish("/sensors", copy);
-        parent->getLedMonitor().led2("DATA"); //BUG: this is causing exceptions in some circunstances
+        parent->getLedMonitor().led2("DATA"); 
     }
 }
 
-void MQTTManager::setParent(App *_parent)
+
+void MQTTManager::setParams(App *_parent, EnvVars vars)
 {
     this->parent = _parent;
-    parent = _parent;
-}
-
-void MQTTManager::setParams(char* device_id, char* mqtt_host,int mqtt_port,char* mqtt_user,char* mqtt_pass)
-{
-    this->device_id = device_id;
-    this->mqtt_host = mqtt_host;
-    this->mqtt_port = mqtt_port;
-    this->mqtt_user = mqtt_user;
-    this->mqtt_pass = mqtt_pass;
-    mqtt_client.setServer(mqtt_host, mqtt_port);
-    mqtt_client.setCallback(subscribe_callback);//aqui começa os problemas    
+    this->device_id = vars.device_id;
+    this->mqtt_host = vars.mqtt_host;
+    this->mqtt_port = vars.mqtt_port;
+    this->mqtt_user = vars.mqtt_user;
+    this->mqtt_pass = vars.mqtt_pass;
+    mqtt_client.setServer((char*) mqtt_host.c_str(), mqtt_port.toInt());
+    mqtt_client.setCallback(subscribe_callback);//aqui começam os problemas    
 }
 
 bool MQTTManager::isConnected()
