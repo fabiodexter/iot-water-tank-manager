@@ -1,5 +1,5 @@
-#ifndef TESTE_1_H_INCLUDED
-#define TESTE_1_H_INCLUDED
+#ifndef APP_INCLUDED
+#define APP_INCLUDED
 #include <Arduino.h>
 #include <LedMonitor.h>
 //#include <WebServer.h>
@@ -28,4 +28,4 @@ public:
     //WebServer getWebServer();
     
 };
-#endif // TESTE_1_H_INCLUDED
+#endif // APP_INCLUDED
