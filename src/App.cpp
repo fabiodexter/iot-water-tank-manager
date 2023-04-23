@@ -8,8 +8,8 @@
 #include <WebServer.h>
 EnvVars vars;
 WebServer webserver;
-WifiManager wifi_manager;
-MQTTManager mqtt_manager;
+WifiManager wifiClient;
+MQTTManager mqttClient;
 LedMonitor ledMonitor(1);
 
 
@@ -42,8 +42,8 @@ void App::setup()
     vars.initFS();
     this->ledMonitor = ledMonitor;
     webserver.setParent(this);
-    wifi_manager.setParams(this,vars);
-    mqtt_manager.setParams(this,vars);
+    wifiClient.setParams(this,vars);
+    mqttClient.setParams(this,vars);
 
     //tank limit sensor
     pinMode(tank_limit_pin, INPUT);    
@@ -55,12 +55,18 @@ void App::loop()
 {
     curMillis = millis();
 
-    //loop basic modules
-    webserver.loop();
-    ledMonitor.loop();
-    wifi_manager.loop();
-    mqtt_manager.loop();
+    // tank limit sensor 
+    if (digitalRead(tank_limit_pin) == HIGH){
+        tank_limit = false;
+        ledMonitor.led3("OFF");
+    }
+    else{
+        tank_limit = true;
+        ledMonitor.led3("ERROR");
+    }
 
+    // Ultrasonic distance sensor HR-SR04 
+    distance_surface = ultrasonic.read(CM);   
 
     // waterflow sensor  
     sensorWaterflow.loop();
@@ -68,37 +74,31 @@ void App::loop()
     int flow_count = sensorWaterflow.getFlowCount();
 
 
-    //establishes pubInterval based on flow_rate
-    int ii = pubInterval;
-    if(flow_rate>0) ii = 1000;
-    if (curMillis - prevMillis > ii)
-    {
-        // water level sensor 
-        if (digitalRead(tank_limit_pin) == HIGH){
-            tank_limit = false;
-            ledMonitor.led3("OFF");
-        }
-        else{
-            tank_limit = true;
-            ledMonitor.led3("ERROR");
-        }
+ 
 
-        // Ultrasonic distance sensor HR-SR04 
-        distance_surface = ultrasonic.read(CM);    
+    //establishes pubInterval based on flow_rate
+    int shortInterval = pubInterval;
+    if(flow_rate>0) shortInterval = 1000;
+    if (curMillis - prevMillis > shortInterval)
+    {
 
         // Publishing results 
         if(isMQTTConnected()){
             String json = String("{") + "\"device_id\":\"" + vars.device_id + "\",\"data\":{\"tank_limit\":" + tank_limit + ",\"flow_count\":" + flow_count + ",\"flow_rate\":" + flow_rate + ",\"distance_surface\":" + distance_surface + "}}";
             Serial.println(json);
-            char copy[250];
-            json.toCharArray(copy, 250);
-            mqtt_manager.publish_mqtt(copy);
+            mqttClient.publish_mqtt((char*)json.c_str());
         }
         
         //closing loop
         prevMillis = curMillis;
     }
 
+
+    //loop basic modules
+    ledMonitor.loop();
+    wifiClient.loop();
+    mqttClient.loop();
+    webserver.loop();
 
 }
 
@@ -133,12 +133,12 @@ LedMonitor App::getLedMonitor(){
 }
 
 boolean App::isWifiConnected(){
-    return wifi_manager.isConnected();
+    return wifiClient.isConnected();
 }
 
 
 boolean App::isMQTTConnected(){
-    return mqtt_manager.isConnected();
+    return mqttClient.isConnected();
 }
 
 
