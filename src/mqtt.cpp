@@ -59,7 +59,7 @@ void MQTTManager::reconnect()
 }
 
 
-void MQTTManager::loop_mqtt()
+void MQTTManager::loop()
 {
     if (!mqtt_client.connected() && connecting == false)
     {

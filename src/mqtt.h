@@ -20,7 +20,7 @@ public:
     MQTTManager();
     bool isConnected();
     void reconnect();
-    void loop_mqtt();
+    void loop();
     void setParent(App *parent);
     void setParams(char* device_id,char* mqtt_host,int mqtt_port,char* mqtt_user,char* mqtt_pass);
     void publish_mqtt(char *copy);
