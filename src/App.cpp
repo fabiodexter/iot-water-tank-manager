@@ -2,30 +2,31 @@
 #include <App.h>
 #include <SensorWaterflow.h>
 #include <WebServer.h>
+#include <WifiManager.h>
 #include <mqtt.h>
 #include <EnvVars.h>
 
 
 
-SensorWaterflow sensorWaterflow(13);
 WebServer webserver;
+WifiManager wifi_manager;
 MQTTManager mqtt_manager;
 EnvVars vars;
+SensorWaterflow sensorWaterflow(13);
 LedMonitor ledMonitor(1);
-String wifi_status = "disconnected";
+
+
+
 
 const int tank_limit_pin = 3;
-
 bool tank_limit = false;
 float flow_rate = 0.00;
-int distance_surface = 500;
-
-
-
 
 // Ultrasonic distance sensor HR-SR04 
+int distance_surface = 500;
 #include <Ultrasonic.h>
 Ultrasonic ultrasonic(14, 12);
+
 
 
 void App::setup()
@@ -40,6 +41,8 @@ void App::setup()
     pinMode(tank_limit_pin, INPUT);
     
     webserver.setParent(this);
+    wifi_manager.setParent(this);
+    wifi_manager.setParams((char*) vars.device_id.c_str(),(char*) vars.ssid.c_str(), (char*) vars.gateway.c_str(),(char*) vars.pass.c_str());
     mqtt_manager.setParent(this);
     mqtt_manager.setParams((char*) vars.device_id.c_str(),(char*) vars.mqtt_host.c_str(), vars.mqtt_port.toInt(),(char*) vars.mqtt_user.c_str(),(char*) vars.mqtt_pass.c_str());
 
@@ -47,45 +50,6 @@ void App::setup()
     //localGateway.fromString(vars.gateway); //not being used yet...dont know why
 }
 
-void App::reconnectWifi(){
-
-    
-    wifi_status =  "connecting";
-
-    if(vars.ssid=="" || vars.pass=="") {
-        webserver.initAPMode(vars.device_id);
-        return;
-    }
-
-    Serial.println(">> Connecting to WiFi...");
-
-    WiFi.disconnect(true);
-    WiFi.begin(vars.ssid, vars.pass);
-
-    int tries = 0;
-    while (WiFi.status() != WL_CONNECTED)
-    {
-        this->ledMonitor.led1("CONNECTING");
-        delay(5000);
-        Serial.println(">> connecting...");
-        tries++;
-        if(tries>5){
-            //starting webserver in AP mode
-            webserver.initAPMode(vars.device_id);
-            return;
-        }
-    }
-
-    Serial.print(">> IP Address: ");
-    Serial.println(WiFi.localIP());    
-    WiFi.setHostname(vars.device_id.c_str());
-    Serial.println(">> hostname: " + WiFi.hostname());
-    delay(1000);
-    this->ledMonitor.led1("CONNECTED");    
-    wifi_status = "connected";
-    //starting webserver
-    webserver.startWebserver();
-}
 
 
 void App::loop()
@@ -93,18 +57,7 @@ void App::loop()
     curMillis = millis();
     webserver.loop();
     ledMonitor.loop();
-
-
-
-    if(wifi_status == "connecting") {
-        return;
-    }
-
-    if(wifi_status != "connected") {
-        reconnectWifi();
-        return;
-    }
-
+    wifi_manager.loop();
     mqtt_manager.loop_mqtt();
 
 
@@ -113,10 +66,10 @@ void App::loop()
     flow_rate = sensorWaterflow.getFlowRate();
     int flow_count = sensorWaterflow.getFlowCount();
 
+
+
     int ii = pubInterval;
     if(flow_rate>0) ii = 1000;
-
-    // json output =========================================================================
     if (curMillis - prevMillis > ii)
     {
         // water level sensor 
@@ -133,7 +86,7 @@ void App::loop()
         distance_surface = ultrasonic.read(CM);    
 
         // Publishing results 
-        if(mqtt_manager.getStatus()==true){
+        if(isMQTTConnected()){
             String json = String("{") + "\"device_id\":\"" + vars.device_id + "\",\"data\":{\"tank_limit\":" + tank_limit + ",\"flow_count\":" + flow_count + ",\"flow_rate\":" + flow_rate + ",\"distance_surface\":" + distance_surface + "}}";
             Serial.println(json);
             char copy[250];
@@ -176,7 +129,23 @@ String App::exposeMetrics(String var)
     return String("N/A");
 }
 
-
 LedMonitor App::getLedMonitor(){
     return this->ledMonitor;
 }
+
+boolean App::isWifiConnected(){
+    return wifi_manager.isConnected();
+}
+
+
+boolean App::isMQTTConnected(){
+    return mqtt_manager.isConnected();
+}
+
+
+
+/*
+WebServer App::getWebServer(){
+    return this->webserver;
+}
+*/

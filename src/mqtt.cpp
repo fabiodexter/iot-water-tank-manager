@@ -31,6 +31,7 @@ MQTTManager::MQTTManager()
 
 void MQTTManager::reconnect()
 {
+    if(!this->parent->isWifiConnected()) return;
     connecting = true;
 
     while (!mqtt_client.connected())
@@ -93,7 +94,8 @@ void MQTTManager::setParams(char* device_id, char* mqtt_host,int mqtt_port,char*
     mqtt_client.setCallback(subscribe_callback);//aqui começa os problemas    
 }
 
-bool MQTTManager::getStatus()
+bool MQTTManager::isConnected()
 {
     return mqtt_client.connected();
 }
+
