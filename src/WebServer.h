@@ -10,7 +10,8 @@ private:
 public:
     WebServer();
     void setParent(App *_parent);
-    void startWebserver();
-    bool initAPMode(String newHostname);
+    void start();
+    void stop();
+    bool startAPMode(String newHostname);
     void loop();
 };

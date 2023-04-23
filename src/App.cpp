@@ -142,9 +142,12 @@ boolean App::isMQTTConnected(){
 }
 
 
-
-/*
-WebServer App::getWebServer(){
-    return this->webserver;
+void App::startWebServer(){
+    webserver.start();
 }
-*/
+void App::stopWebServer(){
+    webserver.stop();
+}
+void App::startAPMode(String newHostname){
+    webserver.startAPMode(newHostname);
+}

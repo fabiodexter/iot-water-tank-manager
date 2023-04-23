@@ -2,7 +2,6 @@
 #define APP_INCLUDED
 #include <Arduino.h>
 #include <LedMonitor.h>
-//#include <WebServer.h>
 
 class App
 {
@@ -12,7 +11,6 @@ private:
     long prevMillis = 0;
     int pubInterval = 10000;
     LedMonitor ledMonitor;
-    //WebServer webserver;
 
 public:
     App(){
@@ -25,7 +23,8 @@ public:
     boolean isWifiConnected();
     boolean isMQTTConnected();
     LedMonitor getLedMonitor();
-    //WebServer getWebServer();
-    
+    void startWebServer();
+    void stopWebServer();
+    void startAPMode(String newHostname);    
 };
 #endif // APP_INCLUDED

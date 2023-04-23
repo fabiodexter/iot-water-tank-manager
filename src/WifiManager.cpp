@@ -19,12 +19,13 @@ void WifiManager::setParams(App *_parent, EnvVars vars){
 void WifiManager::reconnect(){
 
     wifi_status =  "connecting";
+    parent->stopWebServer();
 
-    //if(this->ssid=="" || this->pass=="") {
-        //parent->getWebServer().initAPMode(this->device_id);
-       // return;
-    //}
-
+    if(this->ssid.isEmpty() || this->pass.isEmpty()) {
+        wifi_status = "APMode";
+        parent->startAPMode(this->device_id);
+        return;
+    }
 
     WiFi.disconnect(true);
     WiFi.begin(this->ssid, this->pass);
@@ -44,14 +45,15 @@ void WifiManager::reconnect(){
     //localGateway.fromString(vars.gateway); //not being used yet...dont know why
     parent->getLedMonitor().led1("CONNECTED");    
     wifi_status = "connected";
+    
     //starting webserver
-    //parent->getWebServer().startWebserver();
+    parent->startWebServer();
 }
 
 
 void WifiManager::loop()
 {
-    if(wifi_status == "connecting") {
+    if(wifi_status == "connecting" || wifi_status == "APMode") {
         return;
     }
 

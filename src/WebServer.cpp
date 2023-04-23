@@ -173,7 +173,7 @@ void WebServer::setParent(App *_parent)
 }
 
 
-void WebServer::startWebserver(){
+void WebServer::start(){
     Serial.println(">> starting webserver");
 
     server.on("/", HTTP_GET, [this](AsyncWebServerRequest *request){ 
@@ -205,10 +205,12 @@ void WebServer::startWebserver(){
     server.begin();
     Serial.println(">> webserver running");
 }
+void WebServer::stop(){
+  server.end();
+}
 
 
-
-bool WebServer::initAPMode(String newHostname)
+bool WebServer::startAPMode(String newHostname)
 {
         if(newHostname=="") newHostname = "iot-generic-device-AP";
         else newHostname = newHostname + "-AP";
