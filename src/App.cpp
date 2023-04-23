@@ -23,7 +23,7 @@ int distance_surface = 500;
 
 
 
-//===================== Ultrasonic distance sensor HR-SR04 =====================================
+// Ultrasonic distance sensor HR-SR04 
 #include <Ultrasonic.h>
 Ultrasonic ultrasonic(14, 12);
 
@@ -44,7 +44,7 @@ void App::setup()
     mqtt_manager.setParams((char*) vars.device_id.c_str(),(char*) vars.mqtt_host.c_str(), vars.mqtt_port.toInt(),(char*) vars.mqtt_user.c_str(),(char*) vars.mqtt_pass.c_str());
 
     this->ledMonitor.led1("OFF");
-    //localGateway.fromString(vars.gateway);
+    //localGateway.fromString(vars.gateway); //not being used yet...dont know why
 }
 
 void App::reconnectWifi(){

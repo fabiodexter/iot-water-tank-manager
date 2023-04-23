@@ -39,7 +39,7 @@ void MQTTManager::reconnect()
         if (mqtt_client.connect(this->device_id, this->mqtt_user, this->mqtt_pass))
         {
             String topic = "/controllers/" + String(this->device_id) + "/#";
-            parent->getLedMonitor().led2("CONNECTED"); //BUG: this is causing exceptions
+            parent->getLedMonitor().led2("CONNECTED"); //BUG: this is causing exceptions in some circunstances
             Serial.println(">> mqtt broker connected");
             mqtt_client.subscribe(topic.c_str());
             Serial.println(">> subscribed to " + topic);
@@ -49,10 +49,10 @@ void MQTTManager::reconnect()
         {
             Serial.print(">> failed, rc=");
             Serial.print(mqtt_client.state());
-            Serial.println(">> trying again in 5 seconds");
-            parent->getLedMonitor().led2("CONNECTING"); //BUG: this is causing exceptions
+            Serial.println(">> trying again...");
+            parent->getLedMonitor().led2("CONNECTING"); //BUG: this is causing exceptions in some circunstances
            
-            delay(5000);
+            delay(1000);
         }
     }
 }
@@ -72,7 +72,7 @@ void MQTTManager::publish_mqtt(char *copy)
     if (mqtt_client.connected())
     {
         mqtt_client.publish("/sensors", copy);
-        parent->getLedMonitor().led2("DATA"); //BUG: this is causing exceptions
+        parent->getLedMonitor().led2("DATA"); //BUG: this is causing exceptions in some circunstances
     }
 }
 
