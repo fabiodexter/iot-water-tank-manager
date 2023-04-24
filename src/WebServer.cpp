@@ -5,10 +5,8 @@
 #include <ESPAsyncWebServer.h>
 #include <ESPAsyncTCP.h>
 #include <DNSServer.h>
-App *parent__;
-
-
-
+App *parent_;
+bool APMode = false;
 // Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
 
@@ -160,7 +158,7 @@ void processConfig(AsyncWebServerRequest *request){
 
 String processor(String var)
 {
-    return parent__->exposeMetrics(var);
+    return parent_->exposeMetrics(var);
 }
 
 WebServer::WebServer()
@@ -168,12 +166,12 @@ WebServer::WebServer()
 }
 void WebServer::setParent(App *_parent)
 {
-    this->parent = _parent;
-    parent__ = _parent;
+    parent_ = _parent;
 }
 
 
 void WebServer::start(){
+    APMode = false;
     Serial.println(">> starting webserver");
 
     server.on("/", HTTP_GET, [this](AsyncWebServerRequest *request){ 
@@ -185,10 +183,10 @@ void WebServer::start(){
             AsyncWebParameter* p = request->getParam(i);
             pparams = pparams + p->name() + "=" + p->value();
         }
-        this->parent->runCommand(pparams);
+        parent_->runCommand(pparams);
 
-        request->send(LittleFS, "/index.html", "text/html", false, processor); });
-
+        request->send(LittleFS, "/index.html", "text/html", false, processor); 
+    });
 
     server.on("/config", HTTP_POST, [this](AsyncWebServerRequest *request){
         Serial.println(">> changing config variables");
@@ -205,6 +203,8 @@ void WebServer::start(){
     server.begin();
     Serial.println(">> webserver running");
 }
+
+
 void WebServer::stop(){
   server.end();
 }
@@ -212,27 +212,33 @@ void WebServer::stop(){
 
 bool WebServer::startAPMode(String newHostname)
 {
-        if(newHostname=="") newHostname = "iot-generic-device-AP";
-        else newHostname = newHostname + "-AP";
-        parent__->getLedMonitor().led1("ERROR");
-        // Connect to Wi-Fi network with SSID and password
-        Serial.println(">> Setting AP (Access Point)");
-        // NULL sets an open Access Point
-        WiFi.softAP(newHostname.c_str(), NULL);
+      if(APMode) return false;
+      APMode = true;
+      server.end();
+      WiFi.disconnect();
 
-        IPAddress IP = WiFi.softAPIP();
-        Serial.print(">> AP IP address: ");
-        Serial.print(IP);
-        Serial.println("");
+      if(newHostname=="") newHostname = "iot-generic-device-AP";
+      else newHostname = newHostname + "-AP";
 
-        // Web Server Root URL
-        server.on("/", HTTP_GET, [this](AsyncWebServerRequest *request){ 
-          request->send(LittleFS, "/wifimanager.html", "text/html"); 
-        });
+      parent_->setMonitorLed("led1","ERROR");
+      // Connect to Wi-Fi network with SSID and password
+      Serial.println(">> Setting AP (Access Point)");
+      // NULL sets an open Access Point
+      WiFi.softAP(newHostname.c_str(), NULL);
 
-        server.serveStatic("/", LittleFS, "/");
+      IPAddress IP = WiFi.softAPIP();
+      Serial.print(">> AP IP address: ");
+      Serial.print(IP);
+      Serial.println("");
 
-        server.on("/config", HTTP_POST, [this](AsyncWebServerRequest *request){
+      // Web Server Root URL
+      server.on("/", HTTP_GET, [this](AsyncWebServerRequest *request){ 
+        request->send(LittleFS, "/wifimanager.html", "text/html"); 
+      });
+
+      server.serveStatic("/", LittleFS, "/");
+
+      server.on("/config", HTTP_POST, [this](AsyncWebServerRequest *request){
           //process config page 
           processConfig(request);
   

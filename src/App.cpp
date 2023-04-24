@@ -6,6 +6,7 @@
 #include <WifiManager.h>
 #include <mqtt.h>
 #include <WebServer.h>
+#include <LedMonitor.h>
 EnvVars vars;
 WebServer webserver;
 WifiManager wifiClient;
@@ -40,7 +41,7 @@ void App::setup()
 
     //Basic modules setup
     vars.initFS();
-    this->ledMonitor = ledMonitor;
+    ledMonitor.setParent(this);
     webserver.setParent(this);
     wifiClient.setParams(this,vars);
     mqttClient.setParams(this,vars);
@@ -128,19 +129,14 @@ String App::exposeMetrics(String var)
     return String("N/A");
 }
 
-LedMonitor App::getLedMonitor(){
-    return this->ledMonitor;
-}
 
 boolean App::isWifiConnected(){
     return wifiClient.isConnected();
 }
 
-
 boolean App::isMQTTConnected(){
     return mqttClient.isConnected();
 }
-
 
 void App::startWebServer(){
     webserver.start();
@@ -148,6 +144,12 @@ void App::startWebServer(){
 void App::stopWebServer(){
     webserver.stop();
 }
-void App::startAPMode(String newHostname){
-    webserver.startAPMode(newHostname);
+void App::startAPMode(){
+    webserver.startAPMode(vars.device_id);
+}
+
+void App::setMonitorLed(String led, String status){
+    if(led=="led1") ledMonitor.led1(status);
+    else if(led=="led2") ledMonitor.led2(status);
+    else if(led=="led3") ledMonitor.led3(status);
 }

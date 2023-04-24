@@ -1,6 +1,9 @@
 #include <Arduino.h>
 #include <App.h>
+#include <LedMonitor.h>
 #include "PCF8574.h"
+
+
 
 // Set the i2c HEX address
 PCF8574 pcf8574(0x20);
@@ -18,7 +21,7 @@ LedMonitor::LedMonitor(int pin)
     pcf8574.pinMode(P4, OUTPUT);
     pcf8574.pinMode(P5, OUTPUT);
     pcf8574.pinMode(P6, OUTPUT);
-    pcf8574.pinMode(P7, OUTPUT);    
+    pcf8574.pinMode(P7, INPUT);    
     pcf8574.begin();
     pcf8574.digitalWrite(P0, LOW);
     pcf8574.digitalWrite(P1, LOW);
@@ -27,12 +30,15 @@ LedMonitor::LedMonitor(int pin)
     pcf8574.digitalWrite(P4, LOW);
     pcf8574.digitalWrite(P5, LOW);
     pcf8574.digitalWrite(P6, LOW);
-    pcf8574.digitalWrite(P7, LOW);
+    //pcf8574.digitalWrite(P7, LOW);
 
 
 
 }
 
+void LedMonitor::setParent(App *_parent){
+    parent = _parent;
+}
 
 
 void LedMonitor::led1(String status){
@@ -137,11 +143,16 @@ String LedMonitor::led3(){
 
 void LedMonitor::loop()
 {
+
+    bool i = pcf8574.digitalRead(P7);
+
+
     this->curMillis = millis();
 
     if (this->curMillis - this->prevMillis > this->refreshRate)
     {
-
+        Serial.println(i);
+        if(!i) parent->startAPMode();
         this->prevMillis = this->curMillis;
     }
 }

@@ -13,7 +13,7 @@ void WifiManager::setParams(App *_parent, EnvVars vars){
     this->ssid = vars.ssid;
     this->gateway = vars.gateway;
     this->pass = vars.pass;
-    this->parent->getLedMonitor().led1("OFF");
+    parent->setMonitorLed("led1","OFF");
 }
 
 void WifiManager::reconnect(){
@@ -23,7 +23,7 @@ void WifiManager::reconnect(){
 
     if(this->ssid.isEmpty() || this->pass.isEmpty()) {
         wifi_status = "APMode";
-        parent->startAPMode(this->device_id);
+        parent->startAPMode();
         return;
     }
 
@@ -34,7 +34,7 @@ void WifiManager::reconnect(){
     while (WiFi.status() != WL_CONNECTED)
     {
         Serial.println(">> Connecting to WiFi...");
-        parent->getLedMonitor().led1("CONNECTING");
+        parent->setMonitorLed("led1","CONNECTING");
         delay(2000);
     }
 
@@ -43,7 +43,7 @@ void WifiManager::reconnect(){
     WiFi.setHostname((char*) this->device_id.c_str());
     Serial.println(">> hostname: " + WiFi.hostname());
     //localGateway.fromString(vars.gateway); //not being used yet...dont know why
-    parent->getLedMonitor().led1("CONNECTED");    
+    parent->setMonitorLed("led1","CONNECTED");
     wifi_status = "connected";
     
     //starting webserver

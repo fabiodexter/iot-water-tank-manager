@@ -40,7 +40,8 @@ void MQTTManager::reconnect()
         if (mqtt_client.connect(this->device_id.c_str(), this->mqtt_user.c_str(), this->mqtt_pass.c_str()))
         {
             String topic = "/controllers/" + this->device_id + "/#";
-            parent->getLedMonitor().led2("CONNECTED"); 
+            //parent->getLedMonitor().led2("CONNECTED"); 
+            parent->setMonitorLed("led2","CONNECTED");
             Serial.println(">> mqtt broker connected");
             mqtt_client.subscribe(topic.c_str());
             Serial.println(">> subscribed to " + topic);
@@ -51,7 +52,8 @@ void MQTTManager::reconnect()
             Serial.print(">> failed, rc=");
             Serial.print(mqtt_client.state());
             Serial.println(">> trying again...");
-            parent->getLedMonitor().led2("CONNECTING");            
+            //parent->getLedMonitor().led2("CONNECTING");            
+            parent->setMonitorLed("led2","CONNECTING");
             delay(1000);
         }
     }
@@ -72,7 +74,8 @@ void MQTTManager::publish_mqtt(char *copy)
     if (mqtt_client.connected())
     {
         mqtt_client.publish("/sensors", copy);
-        parent->getLedMonitor().led2("DATA"); 
+        //parent->getLedMonitor().led2("DATA"); 
+        parent->setMonitorLed("led2","DATA");
     }
 }
 

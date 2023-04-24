@@ -5,7 +5,7 @@
 class WebServer
 {
 private:
-    App *parent;
+
 
 public:
     WebServer();
