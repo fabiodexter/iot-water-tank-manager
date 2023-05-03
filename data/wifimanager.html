@@ -1,20 +1,14 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Water Tank Manager</title>
+    <title>iot device settings</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="icon" href="data:," />
-    <link
-      rel="stylesheet"
-      href="https://use.fontawesome.com/releases/v5.7.2/css/all.css"
-      integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr"
-      crossorigin="anonymous"
-    />
-    <link rel="stylesheet" type="text/css" href="style.css" />
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
   </head>
   <body class="wifimanager">
     <div class="topnav">
-      <h1>Water Tank Manager</h1>
+      <h1>iot device settings</h1>
+      <h6>%DEVICE_ID%</h6>
     </div>
     <div class="content">
 
@@ -24,7 +18,7 @@
               <h3>General</h3>
               <div class="field">
               <label for="device_id">device_id</label>
-              <input type="text" id="device_id" name="device_id" />
+              <input type="text" id="device_id" name="device_id" value="%DEVICE_ID%"/>
               </div>
             </div>
 
@@ -86,7 +80,7 @@
               
             </div>
 
-              <input type="submit" value="Submit" />
+              <input type="submit" value="save settings" />
           </form>
     </div>
   </body>

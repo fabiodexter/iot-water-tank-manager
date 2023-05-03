@@ -3,23 +3,27 @@
   <head>
     <title>iot device</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" type="text/css" href="style.css" />
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
     <link rel="icon" type="image/png" href="favicon.png" />
-    <script src="global.js"></script>
+    <script src="js/jquery-3.6.4.min.js"></script>
+    <script src="js/mqtt.min.js"></script>
+    <script src="js/numeral.min.js"></script>
+    <script src="js/moment.min.js"></script>
+    <script src="js/global.js"></script>
   </head>
   <body class="index">
-    <!-- SVG -->
-<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
-  <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 150" id="line">
-    <line x1="75" y1="34" x2="75" y2="58"/>
-  </symbol>
-  <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 150" id="circle">
-    <circle cx="75" cy="80" r="35"/>
-  </symbol>
-</svg>
+    
+    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+      <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 150" id="line">
+        <line x1="75" y1="34" x2="75" y2="58"/>
+      </symbol>
+      <symbol xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 150" id="circle">
+        <circle cx="75" cy="80" r="35"/>
+      </symbol>
+    </svg>
 
     <div class="topnav">
-      <h1>iot Water Pump Manager</h1>
+      <h1>iot device monitor</h1>
       <h6>%DEVICE_ID%</h6>
     </div>
     <div class="content">
@@ -42,25 +46,30 @@
         </div>
         -->
         
-        <div class="card" id="distance_surface" data-status="%TANK_LIMIT%">
-          <div class="card-title">Distance Surface</div>
+        <div class="card" id="distance_surface" data-status="0">
+          <div class="card-title">Estimated volume</div>
           <div class="card-body">
-            <div class="value">%DISTANCE_SURFACE%</div>            
-            <div class="unit">cm</div>
+            <div class="value">0%</div>
+            <div class="unit"></div>
           </div>
-          <div class="state">State: %TANK_LIMIT%</div>
+          <div class="state"></div>
         </div>
         
-        <div class="card" id="waterflow" data-status="%WATER_FLOW%">
+        <div class="card" id="waterflow">
           <div class="card-title">Water Flow</div>
           <div class="card-body">
-            <div class="value">%WATER_FLOW%</div>
+            <div class="value">0.00</div>
             <div class="unit">l/min</div>
           </div>
-          <div class="state">State: %WATER_FLOW%</div>
+          <div class="state"></div>
         </div>       
 
       </div>
+      <div class="last_update">last updated: <div class="timestamp"></div></div>
+
+    </div>
+    <div class="optin-container">
+      <button class="button-on" id="optin">start monitoring</button> 
     </div>
   </body>
 </html>
