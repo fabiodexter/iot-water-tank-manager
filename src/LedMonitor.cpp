@@ -151,8 +151,7 @@ void LedMonitor::loop()
 
     if (this->curMillis - this->prevMillis > this->refreshRate)
     {
-        Serial.println(i);
-        if(!i) parent->startAPMode();
+        if(i) parent->startAPMode();
         this->prevMillis = this->curMillis;
     }
 }
