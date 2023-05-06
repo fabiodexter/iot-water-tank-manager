@@ -3,6 +3,7 @@ html {
     display: inline-block;
     text-align: center;
     background-color: #012e11;
+    height: 100%;
   }
   body {  
     margin: 0;
@@ -341,11 +342,6 @@ html {
 }
 
 
-.config_done{
-
-}
-
-
 .topnav .right-container {
     display: flex;
     /* flex: 0 0 3em; */
@@ -390,3 +386,10 @@ html {
 
 .settings .topnav #settings {display:none}
 .settings .topnav .logo {display:none}
+
+
+
+/* config done page*/
+.config_done{color: #333;padding: 2em;background-color: white;height: 100%;}
+.config_done img{display:inline-block;width: 6em;}
+
