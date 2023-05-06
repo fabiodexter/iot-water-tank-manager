@@ -39,7 +39,7 @@ void MQTTManager::reconnect()
         Serial.print(">> Attempting MQTT connection...");
         if (mqtt_client.connect(this->device_id.c_str(), this->mqtt_user.c_str(), this->mqtt_pass.c_str()))
         {
-            String topic = "/controllers/" + this->device_id + "/#";
+            String topic = "/devices/" + this->device_id + "/control/#";
             //parent->getLedMonitor().led2("CONNECTED"); 
             parent->setMonitorLed("led2","CONNECTED");
             Serial.println(">> mqtt broker connected");
@@ -51,8 +51,7 @@ void MQTTManager::reconnect()
         {
             Serial.print(">> failed, rc=");
             Serial.print(mqtt_client.state());
-            Serial.println(">> trying again...");
-            //parent->getLedMonitor().led2("CONNECTING");            
+            Serial.println(">> trying again...");    
             parent->setMonitorLed("led2","CONNECTING");
             delay(1000);
         }
@@ -73,8 +72,8 @@ void MQTTManager::publish_mqtt(char *copy)
 {
     if (mqtt_client.connected())
     {
-        mqtt_client.publish("/sensors", copy);
-        //parent->getLedMonitor().led2("DATA"); 
+        String topic = "/devices/" + this->device_id + "/#";
+        mqtt_client.publish(topic.c_str(), copy);
         parent->setMonitorLed("led2","DATA");
     }
 }
@@ -89,7 +88,7 @@ void MQTTManager::setParams(App *_parent, EnvVars vars)
     this->mqtt_user = vars.mqtt_user;
     this->mqtt_pass = vars.mqtt_pass;
     mqtt_client.setServer((char*) mqtt_host.c_str(), mqtt_port.toInt());
-    mqtt_client.setCallback(subscribe_callback);//aqui começam os problemas    
+    mqtt_client.setCallback(subscribe_callback);  
 }
 
 bool MQTTManager::isConnected()

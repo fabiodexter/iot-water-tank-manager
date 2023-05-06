@@ -15,16 +15,18 @@ html {
   
   .topnav {
     overflow: hidden;
-    background-color: #065020;
+    background-color: #ffffff;
     position: relative;
     /* margin-bottom: 1em; */
     padding: 1em;
+    display: flex;
+    border-bottom: 1px solid #333;
   }
   
     
   .topnav h1 {
     font-size: 0.9rem;
-    color: #ffffff;
+    /* color: #ffffff; */
     text-transform: uppercase;
     margin: 0;
     margin-bottom: .25em;
@@ -33,7 +35,7 @@ html {
     
   .topnav h6 {
     font-size: 0.75rem;
-    color: #ffffff85;
+    color: #00000085;
     margin: 0;
   }
   
@@ -43,14 +45,17 @@ html {
     padding: 1em;
     position: relative;
     max-width: 40em;
-    margin: 1em;
+    margin: 1em auto;
     border-radius: .25em;
   }
 
   
   .index .content {
-    padding: 0;
+    padding: 1em;
     background: none;
+    display: block;
+    max-width: 40em;
+    margin: 0em auto;
   }
   
   .card-grid {
@@ -63,8 +68,8 @@ html {
   }
   
   .card {
-    background-color: #0ac14b;
-    box-shadow: 2px 2px 12px 1px rgb(64 192 75 / 54%);
+    background-color: #9dbc20;
+    box-shadow: 2px 2px 12px 1px #9dbc206e;
     border-radius: .25em;
     padding: 2em;
   }
@@ -109,7 +114,7 @@ html {
   input[type=submit] {
     border: none;
     color: #FEFCFB;
-    background-color: #065020;
+    background-color: #9DBC20;
     padding: 1em;
     text-align: center;
     text-decoration: none;
@@ -124,7 +129,7 @@ html {
     }
   
   input[type=submit]:hover {
-    background-color: #126019;
+    background-color: #546511;
   }
   
   input[type=text], input[type=number], select {
@@ -308,7 +313,7 @@ html {
 
 
 
-.wifimanager .content .group {
+.settings .content .group {
     margin-bottom: 2em;
 }
 
@@ -334,3 +339,54 @@ html {
     left: 50%;
     transform: translate(-50%,-50%);
 }
+
+
+.config_done{
+
+}
+
+
+.topnav .right-container {
+    display: flex;
+    /* flex: 0 0 3em; */
+}
+
+.topnav .icon-button svg {
+    width: 2em;
+    fill: #9dbc20;
+}
+.topnav .icon-button:hover svg {
+    width: 2em;
+    fill: #546511;
+}
+
+.topnav .icon-button {
+    cursor: pointer;
+    padding: .2em;
+    display: block;
+}
+
+.topnav .center-container {
+    flex: 1;
+}
+
+.topnav .left-container {
+    /* flex: 0 0 3em; */
+}
+
+
+.topnav .logo {}
+
+.topnav #arrowLeft {}
+
+.topnav #settings {}
+
+
+.topnav .logo img {
+    width: 2em;
+}
+
+.index .topnav #arrowLeft {display:none}
+
+.settings .topnav #settings {display:none}
+.settings .topnav .logo {display:none}

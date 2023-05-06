@@ -14,4 +14,5 @@ public:
     void stop();
     bool startAPMode(String newHostname);
     void loop();
+    bool isAPMode();
 };

@@ -7,26 +7,13 @@
 #include <DNSServer.h>
 App *parent_;
 bool APMode = false;
+
 // Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
-
-
 
 IPAddress localIP;
 IPAddress localGateway;
 IPAddress subnet(255, 255, 0, 0);
-
-// Search for parameter in HTTP POST request
-const char *PARAM_INPUT_1 = "ssid";
-const char *PARAM_INPUT_2 = "pass";
-const char *PARAM_INPUT_4 = "gateway";
-
-const char *PARAM_INPUT_5 = "mqtt_host";
-const char *PARAM_INPUT_6 = "mqtt_port";
-const char *PARAM_INPUT_7 = "mqtt_user";
-const char *PARAM_INPUT_8 = "mqtt_pass";
-
-const char *PARAM_INPUT_9 = "device_id";
 
 // Timer variables
 unsigned long previousMillis = 0;
@@ -60,14 +47,23 @@ void writeFile(fs::FS &fs, const char *path, const char *message)
 
 void processConfig(AsyncWebServerRequest *request){
           
-          const char *device_idPath = "/device_id.txt";          
-          const char *ssidPath = "/ssid.txt";
-          const char *passPath = "/pass.txt";
-          const char *gatewayPath = "/gateway.txt";
-          const char *mqtt_hostPath = "/mqtt_host.txt";
-          const char *mqtt_portPath = "/mqtt_port.txt";
-          const char *mqtt_userPath = "/mqtt_user.txt";
-          const char *mqtt_passPath = "/mqtt_pass.txt";
+          const char *device_id_path = "/device_id.txt";          
+          const char *ssid_path = "/ssid.txt";
+          const char *pass_path = "/pass.txt";
+          const char *gateway_path = "/gateway.txt";
+          const char *mqtt_host_path = "/mqtt_host.txt";
+          const char *mqtt_port_path = "/mqtt_port.txt";
+          const char *mqtt_user_path = "/mqtt_user.txt";
+          const char *mqtt_pass_path = "/mqtt_pass.txt";
+          
+          //custom variables
+          const char *refresh_rate_path = "/refresh_rate.txt";
+          const char *distance_min_volume_path = "/distance_min_volume.txt";
+          const char *distance_max_volume_path = "/distance_max_volume.txt";
+
+
+
+
 
           int params = request->params();
 
@@ -75,78 +71,98 @@ void processConfig(AsyncWebServerRequest *request){
             AsyncWebParameter* p = request->getParam(i);
             
             if(p->isPost()){
-              // HTTP POST ssid value
-              if (p->name() == PARAM_INPUT_1) {
-                String _ssid = p->value().c_str();
-                Serial.print(">> SSID set to: ");
-                Serial.println(_ssid);
-                // Write file to save value
-                writeFile(LittleFS, ssidPath, _ssid.c_str());
-              }
-              
-              // HTTP POST pass value
-              if (p->name() == PARAM_INPUT_2) {
-                String _pass = p->value().c_str();
-                Serial.print(">> Password set to: ");
-                Serial.println(_pass);
-                // Write file to save value
-                writeFile(LittleFS, passPath, _pass.c_str());
-              }
 
-              // HTTP POST gateway value
-              if (p->name() == PARAM_INPUT_4) {
-                String _gateway = p->value().c_str();
-                Serial.print(">> Gateway set to: ");
-                Serial.println(_gateway);
-                // Write file to save value
-                writeFile(LittleFS, gatewayPath, _gateway.c_str());
-              }
-              
-              // HTTP POST mqtt_host value
-              if (p->name() == PARAM_INPUT_5) {
-                String _mqtt_host = p->value().c_str();
-                Serial.print(">> mqtt_host set to: ");
-                Serial.println(_mqtt_host);
-                // Write file to save value
-                writeFile(LittleFS, mqtt_hostPath, _mqtt_host.c_str());
-              }
 
-              // HTTP POST mqtt_port value
-              if (p->name() == PARAM_INPUT_6) {
-                String _mqtt_port = p->value().c_str();
-                Serial.print(">> mqtt_port set to: ");
-                Serial.println(_mqtt_port);
-                // Write file to save value
-                writeFile(LittleFS, mqtt_portPath, _mqtt_port.c_str());
-              }
-              
-              // HTTP POST mqtt_user value
-              if (p->name() == PARAM_INPUT_7) {
-                String _mqtt_user = p->value().c_str();
-                Serial.print(">> mqtt_user set to: ");
-                Serial.println(_mqtt_user);
-                // Write file to save value
-                writeFile(LittleFS, mqtt_userPath, _mqtt_user.c_str());
-              }
-              
-              // HTTP POST mqtt_pass value
-              if (p->name() == PARAM_INPUT_8) {
-                String _mqtt_pass = p->value().c_str();
-                Serial.print(">> mqtt_pass set to: ");
-                Serial.println(_mqtt_pass);
-                // Write file to save value
-                writeFile(LittleFS, mqtt_passPath, _mqtt_pass.c_str());
-              }
-              
-              
               // HTTP POST device_id value
-              if (p->name() == PARAM_INPUT_9) {
+              if (p->name() == "device_id") {
                 String _device_id = p->value().c_str();
                 Serial.print(">> device_id set to: ");
                 Serial.println(_device_id);
-                // Write file to save value
-                writeFile(LittleFS, device_idPath, _device_id.c_str());
+                writeFile(LittleFS, device_id_path, _device_id.c_str());
               }
+
+              // HTTP POST ssid value
+              if (p->name() == "ssid") {
+                String _ssid = p->value().c_str();
+                Serial.print(">> SSID set to: ");
+                Serial.println(_ssid);
+                writeFile(LittleFS, ssid_path, _ssid.c_str());
+              }
+              
+              // HTTP POST pass value
+              if (p->name() == "pass") {
+                String _pass = p->value().c_str();
+                Serial.print(">> Password set to: ");
+                Serial.println(_pass);
+                writeFile(LittleFS, pass_path, _pass.c_str());
+              }
+
+              // HTTP POST gateway value
+              if (p->name() == "gateway") {
+                String _gateway = p->value().c_str();
+                Serial.print(">> Gateway set to: ");
+                Serial.println(_gateway);
+                writeFile(LittleFS, gateway_path, _gateway.c_str());
+              }
+              
+              // HTTP POST mqtt_host value
+              if (p->name() == "mqtt_host") {
+                String _mqtt_host = p->value().c_str();
+                Serial.print(">> mqtt_host set to: ");
+                Serial.println(_mqtt_host);
+                writeFile(LittleFS, mqtt_host_path, _mqtt_host.c_str());
+              }
+
+              // HTTP POST mqtt_port value
+              if (p->name() == "mqtt_port") {
+                String _mqtt_port = p->value().c_str();
+                Serial.print(">> mqtt_port set to: ");
+                Serial.println(_mqtt_port);
+                writeFile(LittleFS, mqtt_port_path, _mqtt_port.c_str());
+              }
+              
+              // HTTP POST mqtt_user value
+              if (p->name() == "mqtt_user") {
+                String _mqtt_user = p->value().c_str();
+                Serial.print(">> mqtt_user set to: ");
+                Serial.println(_mqtt_user);
+                writeFile(LittleFS, mqtt_user_path, _mqtt_user.c_str());
+              }
+              
+              // HTTP POST mqtt_pass value
+              if (p->name() == "mqtt_pass") {
+                String _mqtt_pass = p->value().c_str();
+                Serial.print(">> mqtt_pass set to: ");
+                Serial.println(_mqtt_pass);
+                writeFile(LittleFS, mqtt_pass_path, _mqtt_pass.c_str());
+              }
+              
+              // HTTP POST refresh_rate value
+              if (p->name() == "refresh_rate") {
+                String _refresh_rate = p->value().c_str();
+                Serial.print(">> refresh_rate set to: ");
+                Serial.println(_refresh_rate);
+                writeFile(LittleFS, refresh_rate_path, _refresh_rate.c_str());
+              }
+              
+              // HTTP POST distance_min_volume value
+              if (p->name() == "distance_min_volume") {
+                String distance_min_volume = p->value().c_str();
+                Serial.print(">> distance_min_volume set to: ");
+                Serial.println(distance_min_volume);
+                writeFile(LittleFS, distance_min_volume_path, distance_min_volume.c_str());
+              }
+              
+              // HTTP POST distance_max_volume value
+              if (p->name() == "distance_max_volume") {
+                String _distance_max_volume = p->value().c_str();
+                Serial.print(">> distance_max_volume set to: ");
+                Serial.println(_distance_max_volume);
+                writeFile(LittleFS, distance_max_volume_path, _distance_max_volume.c_str());
+              }
+              
+              
+
 
               Serial.printf("POST[%s]: %s\n", p->name().c_str(), p->value().c_str());
             }
@@ -188,14 +204,23 @@ void WebServer::start(){
         request->send(LittleFS, "/index.html", "text/html", false, processor); 
     });
 
+
+    server.on("/settings", HTTP_GET, [this](AsyncWebServerRequest *request){ 
+        request->send(LittleFS, "/settings.html", "text/html", false, processor); 
+    });
+
+
+
+
+
     server.on("/config", HTTP_POST, [this](AsyncWebServerRequest *request){
-        Serial.println(">> changing config variables");
+        Serial.println(">> changing config settings");
         
         processConfig(request);
 
         //restarting
-        request->send(200, "text/plain", "Done. ESP will restart! "); 
-        Serial.println(">> WiFi Manager will restart");
+          request->send(LittleFS, "/config_done.html", "text/html"); 
+          Serial.println(">> WiFi Manager will restart");
         restart = true;
     });
 
@@ -221,6 +246,7 @@ bool WebServer::startAPMode(String newHostname)
       else newHostname = newHostname + "-AP";
 
       parent_->setMonitorLed("led1","ERROR");
+      parent_->setMonitorLed("led2","OFF");
       // Connect to Wi-Fi network with SSID and password
       Serial.println(">> Setting AP (Access Point)");
       // NULL sets an open Access Point
@@ -233,7 +259,7 @@ bool WebServer::startAPMode(String newHostname)
 
       // Web Server Root URL
       server.on("/", HTTP_GET, [this](AsyncWebServerRequest *request){ 
-        request->send(LittleFS, "/wifimanager.html", "text/html"); 
+        request->send(LittleFS, "/settings.html", "text/html", false, processor); 
       });
 
       server.serveStatic("/", LittleFS, "/");
@@ -243,7 +269,8 @@ bool WebServer::startAPMode(String newHostname)
           processConfig(request);
   
           //restarting
-          request->send(200, "text/plain", "Done. ESP will restart! "); 
+          //request->send(200, "text/html", "<h1>Configuration Done!</h1><h2>Device will restart!</h2> "); 
+          request->send(LittleFS, "/config_done.html", "text/html"); 
           Serial.println(">> WiFi Manager will restart");
           restart = true;
       });
@@ -253,6 +280,10 @@ bool WebServer::startAPMode(String newHostname)
       Serial.println(">> (ap mode) SERVER BEGIN");
       return false;
 
+}
+
+bool WebServer::isAPMode(){
+  return APMode;
 }
 
 void WebServer::loop()

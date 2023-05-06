@@ -22,19 +22,22 @@ void EnvVars::initFS()
     {
         Serial.println(">> LittleFS mounted successfully");
 
-        device_id = readFile(LittleFS, device_idPath);
+        device_id = readFile(LittleFS, device_id_path);
         Serial.println(">> device_id set to: " + device_id);
 
-        ssid = readFile(LittleFS, ssidPath);
-        pass = readFile(LittleFS, passPath);
-        gateway = readFile(LittleFS, gatewayPath);
+        ssid = readFile(LittleFS, ssid_path);
+        pass = readFile(LittleFS, pass_path);
+        gateway = readFile(LittleFS, gateway_path);
 
-        mqtt_host = readFile(LittleFS, mqtt_hostPath);
-        mqtt_port = readFile(LittleFS, mqtt_portPath);
-        mqtt_user = readFile(LittleFS, mqtt_userPath);
-        mqtt_pass = readFile(LittleFS, mqtt_passPath);
-
-
+        mqtt_host = readFile(LittleFS, mqtt_host_path);
+        mqtt_port = readFile(LittleFS, mqtt_port_path);
+        mqtt_user = readFile(LittleFS, mqtt_user_path);
+        mqtt_pass = readFile(LittleFS, mqtt_pass_path);
+        
+        
+        refresh_rate = readFile(LittleFS, refresh_rate_path);
+        distance_min_volume = readFile(LittleFS, distance_min_volume_path);
+        distance_max_volume = readFile(LittleFS, distance_max_volume_path);
          
     }    
 }
