@@ -10,16 +10,15 @@ bool APMode = false;
 
 // Create AsyncWebServer object on port 80
 AsyncWebServer server(80);
-
 IPAddress localIP;
 IPAddress localGateway;
 IPAddress subnet(255, 255, 0, 0);
 
-// Timer variables
-unsigned long previousMillis = 0;
-const long interval = 10000; // interval to wait for Wi-Fi connection (milliseconds)
-
 boolean restart = false;
+
+const char* http_username = "dexter";
+const char* http_password = "d33v0";
+
 
 
 // Write file to LittleFS
@@ -191,6 +190,8 @@ void WebServer::start(){
     Serial.println(">> starting webserver");
 
     server.on("/", HTTP_GET, [this](AsyncWebServerRequest *request){ 
+      if(!request->authenticate(http_username, http_password)) return request->requestAuthentication();
+
         Serial.println(">> serving index page");
         int paramsNr = request->params();
         //Serial.println(paramsNr);
@@ -204,13 +205,16 @@ void WebServer::start(){
         request->send(LittleFS, "/index.html", "text/html", false, processor); 
     });
 
-
     server.on("/settings", HTTP_GET, [this](AsyncWebServerRequest *request){ 
+        if(!request->authenticate(http_username, http_password)) return request->requestAuthentication();      
         request->send(LittleFS, "/settings.html", "text/html", false, processor); 
     });
 
-
-
+    //protected txt files
+    server.on("^\\/([a-zA-Z0-9_])*.txt$", HTTP_GET, [this](AsyncWebServerRequest *request){ 
+        if(!request->authenticate(http_username, http_password)) return request->requestAuthentication();
+        request->send(LittleFS, request->url(), "text/plain", false, processor); 
+    });
 
 
     server.on("/config", HTTP_POST, [this](AsyncWebServerRequest *request){
@@ -219,8 +223,8 @@ void WebServer::start(){
         processConfig(request);
 
         //restarting
-          request->send(LittleFS, "/config_done.html", "text/html"); 
-          Serial.println(">> WiFi Manager will restart");
+        request->send(LittleFS, "/config_done.html", "text/html"); 
+        Serial.println(">> WiFi Manager will restart");
         restart = true;
     });
 
@@ -269,7 +273,6 @@ bool WebServer::startAPMode(String newHostname)
           processConfig(request);
   
           //restarting
-          //request->send(200, "text/html", "<h1>Configuration Done!</h1><h2>Device will restart!</h2> "); 
           request->send(LittleFS, "/config_done.html", "text/html"); 
           Serial.println(">> WiFi Manager will restart");
           restart = true;
