@@ -81,6 +81,7 @@ void MQTTManager::publish_mqtt(char *copy)
 
 void MQTTManager::setParams(App *_parent, EnvVars vars)
 {
+    Serial.println(">> setting up mqtt manager");    
     this->parent = _parent;
     this->device_id = vars.device_id;
     this->mqtt_host = vars.mqtt_host;

@@ -58,7 +58,7 @@ void App::setup()
 
 void App::loop()
 {
-
+    //Serial.println(">>> main loop started");
     if (webserver.isAPMode()) {
         ledMonitor.loop();
         webserver.loop();        
@@ -68,6 +68,7 @@ void App::loop()
     curMillis = millis();
 
     // tank limit sensor 
+    //Serial.println(">>> main loop: tank_limit");
     if (digitalRead(tank_limit_pin) == HIGH){
         tank_limit = false;
         ledMonitor.led3("OFF");
@@ -78,18 +79,27 @@ void App::loop()
     }
 
     // Ultrasonic distance sensor HR-SR04 
+    //Serial.println(">>> main loop: distance sensor");
     distance_surface = ultrasonic.read(CM);   
+
     if(distance_surface > vars.distance_min_volume.toInt()) distance_surface = vars.distance_min_volume.toInt();
     if(distance_surface < vars.distance_max_volume.toInt()) distance_surface = vars.distance_max_volume.toInt();
     int deltad = vars.distance_min_volume.toInt() - vars.distance_max_volume.toInt();
-    water_volume = 1-(((distance_surface - vars.distance_max_volume.toInt())/deltad));
+    //Serial.println(">>> main loop: delta d: " + deltad); 
+    if(deltad == 0){
+        water_volume = 0;
+    }  else {
+        water_volume = 1-(((distance_surface - vars.distance_max_volume.toInt())/deltad));
+    }
 
     // waterflow sensor  
+    //Serial.println(">>> main loop: waterflow sensor");
     sensorWaterflow.loop();
     flow_rate = sensorWaterflow.getFlowRate();
     int flow_count = sensorWaterflow.getFlowCount();
 
     //establishes pubInterval based on flow_rate
+    //Serial.println(">>> main loop: publish results");
     if(vars.refresh_rate.toInt()>1000) pubInterval = vars.refresh_rate.toInt() * 1000;
     int shortInterval = pubInterval;
     if(flow_rate>0) shortInterval = 1000;
@@ -108,11 +118,11 @@ void App::loop()
 
 
     //loop basic modules
+    //Serial.println(">>> main loop component loops");
     ledMonitor.loop();
     wifiClient.loop();
     mqttClient.loop();
     webserver.loop();
-
 }
 
 

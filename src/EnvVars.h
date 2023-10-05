@@ -41,9 +41,9 @@ public:
     String mqtt_user;
     String mqtt_pass;
 
-    String refresh_rate;
-    String distance_min_volume;
-    String distance_max_volume;
+    String refresh_rate = "10";
+    String distance_min_volume = "0";
+    String distance_max_volume = "0";
 
 };
 #endif // ENV_VARS_INCLUDED
