@@ -36,7 +36,7 @@ void MQTTManager::reconnect()
 
     while (!mqtt_client.connected())
     {
-        Serial.print(">> Attempting MQTT connection...");
+        Serial.print(">> Attempting MQTT connection");
         if (mqtt_client.connect(this->device_id.c_str(), this->mqtt_user.c_str(), this->mqtt_pass.c_str()))
         {
             String topic = "/devices/" + this->device_id + "/control/#";
@@ -81,13 +81,13 @@ void MQTTManager::publish_mqtt(char *copy)
 
 void MQTTManager::setParams(App *_parent, EnvVars vars)
 {
-    Serial.println(">> setting up mqtt manager");    
     this->parent = _parent;
     this->device_id = vars.device_id;
     this->mqtt_host = vars.mqtt_host;
     this->mqtt_port = vars.mqtt_port;
     this->mqtt_user = vars.mqtt_user;
     this->mqtt_pass = vars.mqtt_pass;
+    Serial.println(">> setting up mqtt connection ("+this->mqtt_host+":"+this->mqtt_port+")");    
     mqtt_client.setServer((char*) mqtt_host.c_str(), mqtt_port.toInt());
     mqtt_client.setCallback(subscribe_callback);  
 }

@@ -20,7 +20,7 @@ LedMonitor::LedMonitor(int pin)
     pcf8574.pinMode(P3, OUTPUT);
     pcf8574.pinMode(P4, OUTPUT);
     pcf8574.pinMode(P5, OUTPUT);
-    pcf8574.pinMode(P6, OUTPUT);
+    pcf8574.pinMode(P6, INPUT);
     pcf8574.pinMode(P7, INPUT);    
     pcf8574.begin();
     pcf8574.digitalWrite(P0, LOW);
@@ -29,7 +29,7 @@ LedMonitor::LedMonitor(int pin)
     pcf8574.digitalWrite(P3, LOW);
     pcf8574.digitalWrite(P4, LOW);
     pcf8574.digitalWrite(P5, LOW);
-    pcf8574.digitalWrite(P6, LOW);
+    //pcf8574.digitalWrite(P6, LOW);
     //pcf8574.digitalWrite(P7, LOW);
 
 
@@ -119,16 +119,6 @@ void LedMonitor::led2(String status){
 
 };
 
-void LedMonitor::led3(String status){
-    this->led3_status = status;
-    if(this->led3_status=="OFF"){
-        pcf8574.digitalWrite(P6, LOW);
-    }
-    else if(this->led3_status=="ERROR"){
-        pcf8574.digitalWrite(P6, HIGH);
-    }
-};
-
 
 String LedMonitor::led1(){
     return this->led1_status;
@@ -136,22 +126,24 @@ String LedMonitor::led1(){
 String LedMonitor::led2(){
     return this->led2_status;
 };
-String LedMonitor::led3(){
-    return this->led3_status;
-};  
-
 
 void LedMonitor::loop()
 {
 
-    bool i = pcf8574.digitalRead(P7);
+    bool btLimit = pcf8574.digitalRead(P6);
+    bool btReset = pcf8574.digitalRead(P7);
+
+
 
 
     this->curMillis = millis();
 
     if (this->curMillis - this->prevMillis > this->refreshRate)
     {
-        if(i) parent->startAPMode();
+        if(btReset) parent->startAPMode();
+        if(btLimit==LOW) parent->tankLimitReached(true);
+        else parent->tankLimitReached(false);
+
         this->prevMillis = this->curMillis;
     }
 }

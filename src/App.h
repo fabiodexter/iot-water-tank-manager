@@ -25,5 +25,6 @@ public:
     void startWebServer();
     void stopWebServer();
     void startAPMode();    
+    void tankLimitReached(boolean t);    
 };
 #endif // APP_INCLUDED

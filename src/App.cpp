@@ -7,6 +7,9 @@
 #include <mqtt.h>
 #include <WebServer.h>
 #include <LedMonitor.h>
+#include <OneWire.h>
+#include <DallasTemperature.h>
+
 EnvVars vars;
 WebServer webserver;
 WifiManager wifiClient;
@@ -14,7 +17,6 @@ MQTTManager mqttClient;
 LedMonitor ledMonitor(1);
 
 //Tank limit sensor
-const int tank_limit_pin = 3;
 bool tank_limit = false;
 
 //waterflow sensor
@@ -28,6 +30,27 @@ float water_volume = 0.00;
 #include <Ultrasonic.h>
 Ultrasonic ultrasonic(14, 12);
 
+// Setup a oneWire instance to communicate with any OneWire devices (not just Maxim/Dallas temperature ICs)
+#define SENSOR_PIN 2
+OneWire oneWire(SENSOR_PIN);
+DallasTemperature DS18B20(&oneWire);
+float tempC; // temperature in Celsius
+
+
+
+#include <BME280I2C.h>
+BME280I2C::Settings settings(
+   BME280::OSR_X1,
+   BME280::OSR_X1,
+   BME280::OSR_X1,
+   BME280::Mode_Forced,
+   BME280::StandbyTime_1000ms,
+   BME280::Filter_16,
+   BME280::SpiEnable_False,
+   BME280I2C::I2CAddr_0x76
+);
+
+BME280I2C bme(settings);
 
 
 void App::setup()
@@ -46,7 +69,24 @@ void App::setup()
     mqttClient.setParams(this,vars);
 
     //tank limit sensor
-    pinMode(tank_limit_pin, INPUT);    
+    //pinMode(tank_limit_pin, INPUT);    
+
+
+    // Start up the library
+    DS18B20.begin();
+    bme.begin();
+
+  switch(bme.chipModel())
+  {
+     case BME280::ChipModel_BME280:
+       Serial.println("Found BME280 sensor! Success.");
+       break;
+     case BME280::ChipModel_BMP280:
+       Serial.println("Found BMP280 sensor! No Humidity available.");
+       break;
+     default:
+       Serial.println("Found UNKNOWN sensor! Error!");
+  }
 
     //if vars not loaded, start APMode
     if(vars.ssid == "" || vars.pass == ""){
@@ -67,16 +107,19 @@ void App::loop()
 
     curMillis = millis();
 
-    // tank limit sensor 
-    //Serial.println(">>> main loop: tank_limit");
-    if (digitalRead(tank_limit_pin) == HIGH){
-        tank_limit = false;
-        ledMonitor.led3("OFF");
-    }
-    else{
-        tank_limit = true;
-        ledMonitor.led3("ERROR");
-    }
+    //water temperature
+    DS18B20.requestTemperatures();       // send the command to get temperatures
+    tempC = DS18B20.getTempCByIndex(0);  // read temperature in °C
+    
+    //ambient temp, humidity and pressure
+    float temp(NAN), hum(NAN), pres(NAN);
+    BME280::TempUnit tempUnit(BME280::TempUnit_Celsius);
+    BME280::PresUnit presUnit(BME280::PresUnit_Pa);
+    bme.read(pres, temp, hum, tempUnit, presUnit);
+    if(isnan(temp)) temp = 0;
+    if(isnan(hum)) hum = 0;
+    if(isnan(pres)) pres = 0;
+
 
     // Ultrasonic distance sensor HR-SR04 
     //Serial.println(">>> main loop: distance sensor");
@@ -107,7 +150,8 @@ void App::loop()
     {
         // Publishing results 
         if(isMQTTConnected()){
-            String json = String("{") + "\"device_id\":\"" + vars.device_id + "\",\"data\":{\"tank_limit\":" + tank_limit + ",\"flow_count\":" + flow_count + ",\"flow_rate\":" + flow_rate + ",\"distance_surface\":" + distance_surface + ", \"water_volume\":" + water_volume + "}}";
+            String json = String("{") + "\"device_id\":\"" + vars.device_id + "\",\"data\":{\"tank_limit\":" + tank_limit + ",\"flow_count\":" + flow_count + ",\"flow_rate\":" + flow_rate + ",\"distance_surface\":" + distance_surface + ", \"water_vol\":" + water_volume + ",\"water_temp\":" + tempC + ", \"temp\":"+temp+", \"hum\":"+hum+", \"press\":"+pres+"}}";
+            //String json = String("{") + "\"device_id\":\"" + vars.device_id + "\",\"data\":{\"tank_limit\":" + tank_limit + ",\"flow_count\":" + flow_count + ",\"flow_rate\":" + flow_rate + ",\"water_temperature\":" + tempC + ", \"temperature\":"+temp+", \"humidity\":"+hum+", \"pressure\":"+pres+"}}";
             Serial.println(json);
             mqttClient.publish_mqtt((char*)json.c_str());
         }
@@ -170,8 +214,11 @@ void App::startAPMode(){
     webserver.startAPMode(vars.device_id);
 }
 
+void App::tankLimitReached(boolean t){
+    tank_limit = t;
+}
+
 void App::setMonitorLed(String led, String status){
     if(led=="led1") ledMonitor.led1(status);
     else if(led=="led2") ledMonitor.led2(status);
-    else if(led=="led3") ledMonitor.led3(status);
 }
