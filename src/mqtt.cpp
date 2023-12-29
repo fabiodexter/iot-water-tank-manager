@@ -1,4 +1,4 @@
-#include <ESP8266WiFi.h>
+#include <WiFi.h>
 #include <PubSubClient.h>
 #include <mqtt.h>
 
@@ -33,14 +33,14 @@ void MQTTManager::reconnect()
 {
     if(!parent->isWifiConnected()) return;
     connecting = true;
+    Serial.println(">> reconnect !!!");
 
     while (!mqtt_client.connected())
     {
-        Serial.print(">> Attempting MQTT connection");
+        Serial.print(">> Attempting MQTT connection...");
         if (mqtt_client.connect(this->device_id.c_str(), this->mqtt_user.c_str(), this->mqtt_pass.c_str()))
         {
             String topic = "/devices/" + this->device_id + "/control/#";
-            //parent->getLedMonitor().led2("CONNECTED"); 
             parent->setMonitorLed("led2","CONNECTED");
             Serial.println(">> mqtt broker connected");
             mqtt_client.subscribe(topic.c_str());
@@ -61,8 +61,8 @@ void MQTTManager::reconnect()
 
 void MQTTManager::loop()
 {
-    if (!mqtt_client.connected() && connecting == false)
-    {
+    if (!mqtt_client.connected() && connecting == false){
+        Serial.println("mqtt not connected, reconnecting ");
         reconnect();
     }
     mqtt_client.loop();
@@ -87,7 +87,6 @@ void MQTTManager::setParams(App *_parent, EnvVars vars)
     this->mqtt_port = vars.mqtt_port;
     this->mqtt_user = vars.mqtt_user;
     this->mqtt_pass = vars.mqtt_pass;
-    Serial.println(">> setting up mqtt connection ("+this->mqtt_host+":"+this->mqtt_port+")");    
     mqtt_client.setServer((char*) mqtt_host.c_str(), mqtt_port.toInt());
     mqtt_client.setCallback(subscribe_callback);  
 }

@@ -126,6 +126,9 @@ function onMessage(topic, msg) {
         $('.card#water_volume .value').html(numeral(Number(msgdata.data.water_volume)*100).format('0') + '%');
         $('.card#water_volume').attr('data-status',msgdata.data.tank_limit);
         $('.card#waterflow .value').html(numeral(Number(msgdata.data.flow_rate)).format('0.00'));
+        $('.card#watertemp .value').html(numeral(Number(msgdata.data.water_temp)).format('0.00'));
+        $('.card#temp .value').html(numeral(Number(msgdata.data.temp)).format('0.00'));
+        $('.card#hum .value').html(numeral(Number(msgdata.data.hum)).format('0.00'));
         $('.last_update .timestamp').html(moment().format('dddd') + ", " + moment().format('HH:mm:ss'));
         flow_rate = msgdata.data.flow_rate;
         tank_limit = msgdata.data.tank_limit;

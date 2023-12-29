@@ -41,7 +41,7 @@ void WifiManager::reconnect(){
     Serial.print(">> WiFi connected! IP Address: ");
     Serial.println(WiFi.localIP());    
     WiFi.setHostname((char*) this->device_id.c_str());
-    Serial.println(">> hostname: " + WiFi.hostname());
+    //Serial.println(">> hostname: " + WiFi.hostname());
     //localGateway.fromString(vars.gateway); //not being used yet...dont know why
     parent->setMonitorLed("led1","CONNECTED");
     wifi_status = "connected";
