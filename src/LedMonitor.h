@@ -5,7 +5,7 @@ class LedMonitor {
         int pin;
         long curMillis = 0;
         long prevMillis = 0;
-        int refreshRate = 250;
+        int refreshRate = 100;
         App *parent;
         String led1_status = "OFF";
         String led2_status = "OFF";

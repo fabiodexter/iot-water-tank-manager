@@ -4,16 +4,18 @@
     <title>iot device</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" type="text/css" href="css/style.css" />
-    <link rel="icon" type="image/png" href="favicon.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/media/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/media/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/media/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">    
     <script src="js/jquery-3.6.4.min.js"></script>
     <script src="js/mqtt.min.js"></script>
     <script src="js/numeral.min.js"></script>
     <script src="js/moment.min.js"></script>
     <script src="js/index.js"></script>
   </head>
-  <body class="index">
-    
-    
+  <body class="index" data-device-id="%DEVICE_ID%" data-mqtt-host="%MQTT_HOST%" data-mqtt-port="%MQTT_PORT%" data-mqtt-user="%MQTT_USER%" data-mqtt-pass="%MQTT_PASS%">
+
     <div class="topnav">
       <div class="left-container">
         <div class="logo">
@@ -26,8 +28,8 @@
         </div>
       </div>
       <div class="center-container">
-        <h1>iot device monitor</h1>
-        <h6 class="device_id">%DEVICE_ID%</h6>
+        <h1>%DEVICE_ID%</h1>
+        <h6 class="device_id">device monitor</h6>
       </div>
       <div class="right-container">
           <div class="icon-button" id="settings">
@@ -81,7 +83,7 @@
           <div class="card-title">Water Temp</div>
           <div class="card-body">
             <div class="value">0.00</div>
-            <div class="unit">°C</div>
+            <div class="unit">&deg;C</div>
           </div>
           <div class="state"></div>
         </div>       
@@ -90,7 +92,7 @@
           <div class="card-title">Temperature</div>
           <div class="card-body">
             <div class="value">0.00</div>
-            <div class="unit">°C</div>
+            <div class="unit">&deg;C</div>
           </div>
           <div class="state"></div>
         </div>       
@@ -99,7 +101,7 @@
           <div class="card-title">Humidity</div>
           <div class="card-body">
             <div class="value">0.00</div>
-            <div class="unit">°C</div>
+            <div class="unit">%</div>
           </div>
           <div class="state"></div>
         </div>       

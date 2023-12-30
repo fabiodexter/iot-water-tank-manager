@@ -61,10 +61,18 @@ void MQTTManager::reconnect()
 
 void MQTTManager::loop()
 {
+
+/*
+    Serial.print("connected?");
+    Serial.println(mqtt_client.connected());
+    Serial.print("connecting?");
+    Serial.println(connecting);
+*/
     if (!mqtt_client.connected() && connecting == false){
         Serial.println("mqtt not connected, reconnecting ");
         reconnect();
     }
+
     mqtt_client.loop();
 }
 
@@ -87,6 +95,7 @@ void MQTTManager::setParams(App *_parent, EnvVars vars)
     this->mqtt_port = vars.mqtt_port;
     this->mqtt_user = vars.mqtt_user;
     this->mqtt_pass = vars.mqtt_pass;
+    Serial.println(">> setting up mqtt connection ("+this->mqtt_host+":"+this->mqtt_port+")");
     mqtt_client.setServer((char*) mqtt_host.c_str(), mqtt_port.toInt());
     mqtt_client.setCallback(subscribe_callback);  
 }

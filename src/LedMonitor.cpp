@@ -10,6 +10,9 @@
 #define MQTT_GREEN 17
 #define AP_MODE_SWITCH 19    
 
+bool toggle = false;
+int maxBlinks = 4;
+int blinks = 0;
 
 
 LedMonitor::LedMonitor(){}
@@ -48,10 +51,10 @@ void LedMonitor::led1(String status){
         digitalWrite(WIFI_RED, HIGH);
     }
     else if(this->led1_status=="CONNECTING"){
-        digitalWrite(WIFI_RED, LOW);
-        digitalWrite(WIFI_GREEN, HIGH);
+        digitalWrite(WIFI_RED, HIGH);
+        digitalWrite(WIFI_GREEN, LOW);
         delay(250);
-        digitalWrite(WIFI_GREEN, LOW);     
+        digitalWrite(WIFI_RED, LOW);     
     }
     else if(this->led1_status=="CONNECTED"){
         digitalWrite(WIFI_RED, LOW);
@@ -79,20 +82,20 @@ void LedMonitor::led2(String status){
         digitalWrite(MQTT_RED, HIGH);
     }
     else if(this->led2_status=="CONNECTING"){
-        digitalWrite(MQTT_RED, LOW);
-        digitalWrite(MQTT_GREEN, HIGH);
+        digitalWrite(MQTT_RED, HIGH);
+        digitalWrite(MQTT_GREEN, LOW);
         delay(250);
-        digitalWrite(MQTT_GREEN, LOW);     
+        digitalWrite(MQTT_RED, LOW);     
     }
     else if(this->led2_status=="CONNECTED"){
         digitalWrite(MQTT_RED, LOW);
         digitalWrite(MQTT_GREEN, HIGH);
     }    
     else if(this->led2_status=="DATA"){
-        digitalWrite(MQTT_GREEN, LOW);
         digitalWrite(MQTT_RED, LOW);
-        delay(250);
         digitalWrite(MQTT_GREEN, HIGH);
+        blinks = 0;
+        toggle = false;
     }    
 
 };
@@ -113,13 +116,20 @@ void LedMonitor::loop()
 
 
     this->curMillis = millis();
-
-    //Serial.println("lED mONITOR lOOP");
-    //Serial.println(digitalRead(19));
     if(!digitalRead(AP_MODE_SWITCH)) parent->startAPMode();
 
     if (this->curMillis - this->prevMillis > this->refreshRate)
     {
+        if(this->led2_status == "DATA" && blinks < maxBlinks){
+            if(!toggle){
+                digitalWrite(MQTT_GREEN, LOW);
+            }else{
+                digitalWrite(MQTT_GREEN, HIGH);
+            }
+            toggle = !toggle;
+            blinks++;
+        }
+
         this->prevMillis = this->curMillis;
     }
 }

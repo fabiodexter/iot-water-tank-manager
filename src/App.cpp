@@ -1,4 +1,3 @@
-
 //Basic modules
 #include <Arduino.h>
 #include <App.h>
@@ -113,8 +112,8 @@ void gatherSensorsData(){
 
     // Ultrasonic distance sensor HR-SR04 
     distance_surface = ultrasonic.read(CM);   
-    //if(distance_surface > vars.distance_min_volume.toInt()) distance_surface = vars.distance_min_volume.toInt();
-    //if(distance_surface < vars.distance_max_volume.toInt()) distance_surface = vars.distance_max_volume.toInt();
+    if(distance_surface > vars.distance_min_volume.toInt()) distance_surface = vars.distance_min_volume.toInt();
+    if(distance_surface < vars.distance_max_volume.toInt()) distance_surface = vars.distance_max_volume.toInt();
     int deltad = vars.distance_min_volume.toInt() - vars.distance_max_volume.toInt();
     int calc1 = (distance_surface - vars.distance_max_volume.toInt());
     float calc2 = calc1*1.0 / deltad*1.0;
@@ -209,12 +208,12 @@ void App::runCommand(String command)
 
 String App::exposeMetrics(String var)
 {
-    /*
+    
     if(var=="DEVICE_ID") return String(vars.device_id);
-    else if(var=="DISTANCE_SURFACE") return String(distance_surface);
-    else if(var=="WATER_FLOW") return String(flow_rate);
-    else if(var=="TANK_LIMIT") return String(tank_limit);
-*/
+    else if(var=="MQTT_HOST") return String(vars.mqtt_host);
+    else if(var=="MQTT_PORT") return String(vars.mqtt_port);
+    else if(var=="MQTT_USER") return String(vars.mqtt_user);
+    else if(var=="MQTT_PASS") return String(vars.mqtt_pass);
     return String("N/A");
 }
 
